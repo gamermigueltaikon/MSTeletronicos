@@ -406,7 +406,7 @@ async function storageDel(key, shared){
 }
 
 /* ============ default data ============ */
-const DEFAULT_CONFIG = { storeName:'MST ELETRÔNICOS', whatsapp:'5513988400805', pixKey:'sua-chave-pix@exemplo.com' };
+const DEFAULT_CONFIG = { storeName:'MST ELETRÔNICOS', whatsapp:'5513988400805', pixKey:'talita.aoliveira@hotmail.com' };
 const DEFAULT_PRODUCTS = [
   {id:'p1', name:'Console Retro 16-bit', description:'Edição revisada, todos os componentes testados.', price:899.90, category:'Consoles', platform:'Playstation', condition:'Usado', stock:'in'},
   {id:'p2', name:'Jogo de Corrida - Mídia Física', description:'Capa original, manual incluso, testado.', price:129.90, category:'Jogos', platform:'Playstation', condition:'Usado', stock:'in'},
@@ -428,6 +428,10 @@ async function init(){
   if(!config){ config = DEFAULT_CONFIG; await storageSet('store-config', config, true); }
   if(config.whatsapp === '5511999999999'){
     config.whatsapp = DEFAULT_CONFIG.whatsapp;
+    await storageSet('store-config', config, true);
+  }
+  if(config.pixKey === 'sua-chave-pix@exemplo.com'){
+    config.pixKey = DEFAULT_CONFIG.pixKey;
     await storageSet('store-config', config, true);
   }
   if(!config.pixKey) config.pixKey = DEFAULT_CONFIG.pixKey;
