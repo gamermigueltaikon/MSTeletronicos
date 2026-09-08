@@ -17,4 +17,13 @@ O GitHub Pages publicará o arquivo `index.html` automaticamente. O endereço se
 
 Abra **⚙ Admin** no site para definir o nome, WhatsApp e chave PIX. Os produtos de demonstração podem ser editados ou removidos pelo mesmo painel.
 
-O site não exige servidor para funcionar: dados locais usam o armazenamento do navegador e, quando configurado, o código também pode sincronizar com o endpoint de dados definido em `index.html`.
+O site não exige servidor para funcionar. O modo publicado usa armazenamento local do navegador: produtos, configurações e solicitações não são enviados para um banco compartilhado. O painel administrativo é apenas local e não substitui autenticação de servidor.
+
+## Segurança incluída
+
+- Política CSP aplicada para reduzir execução de conteúdo inesperado.
+- URLs de imagens, vídeos e links externos validadas antes da renderização.
+- Dados dinâmicos escapados antes de entrar no HTML.
+- Solicitações de clientes não são carregadas por visitantes nem sincronizadas publicamente.
+- Validação de preço, tamanho de nome e descrição no cadastro de produtos.
+- Link do YouTube usa `youtube-nocookie.com`, `sandbox` e `rel="noopener noreferrer"`.

@@ -7,10 +7,12 @@
 <meta name="description" content="MST Eletrônicos: games, consoles, celulares e acessórios testados, com atendimento direto pelo WhatsApp.">
 <meta name="theme-color" content="#f6f7fb">
 <meta name="robots" content="index,follow">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta property="og:type" content="website">
 <meta property="og:title" content="MST Eletrônicos — Games e acessórios">
 <meta property="og:description" content="Games, consoles, celulares e acessórios testados, com atendimento direto pelo WhatsApp.">
 <meta property="og:locale" content="pt_BR">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; frame-src https://www.youtube.com https://www.youtube-nocookie.com; connect-src 'self';">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='44' fill='%234dd8ff'/%3E%3Ccircle cx='50' cy='50' r='28' fill='%23121214'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -366,8 +368,10 @@ const locks = {};
 function locked(key, ms){ if(locks[key]) return true; locks[key]=true; setTimeout(()=>{locks[key]=false;}, ms||600); return false; }
 
 /* ============ storage helpers ============ */
+const SHARED_STORAGE_ENABLED = false;
 const DATA_API_URL = 'https://ep-wandering-pond-aej2amx6.apirest.c-2.us-east-2.aws.neon.tech/neondb/rest/v1';
 async function storageGet(key, shared){
+  shared = Boolean(shared && SHARED_STORAGE_ENABLED);
   try{
     if(window.storage?.get){ const r = await window.storage.get(key, shared); if(r) return JSON.parse(r.value); }
   }catch(e){}
@@ -380,6 +384,7 @@ async function storageGet(key, shared){
   try{ const raw = localStorage.getItem('loja:'+key); return raw ? JSON.parse(raw) : null; }catch(e){ return null; }
 }
 async function storageSet(key, value, shared){
+  shared = Boolean(shared && SHARED_STORAGE_ENABLED);
   const serialized = JSON.stringify(value);
   try{ if(window.storage?.set){ await window.storage.set(key, serialized, shared); return; } }catch(e){}
   if(shared){
@@ -395,6 +400,7 @@ async function storageSet(key, value, shared){
   try{ localStorage.setItem('loja:'+key, serialized); }catch(e){}
 }
 async function storageDel(key, shared){
+  shared = Boolean(shared && SHARED_STORAGE_ENABLED);
   try{ if(window.storage?.delete){ await window.storage.delete(key, shared); return; } }catch(e){}
   if(shared){
     try{
@@ -447,7 +453,7 @@ async function init(){
   products.forEach((p,i)=>{ mediaCache[p.id] = mediaResults[i] || {images:[], video:null, videoLink:null}; });
 
   cart = await storageGet('cart', false) || [];
-  restockRequests = await storageGet('restock-requests', true) || [];
+  restockRequests = await storageGet('restock-requests', false) || [];
 
   renderTrustStrip();
   renderCategoryDropdown();
@@ -467,16 +473,37 @@ function renderTrustStrip(){
 }
 
 /* ============ media helpers ============ */
-function mediaOf(id){ return mediaCache[id] || {images:[], video:null, videoLink:null}; }
+function mediaOf(id){
+  const media = mediaCache[id] || {};
+  return {
+    images: Array.isArray(media.images) ? media.images.map(safeMediaUrl).filter(Boolean) : [],
+    video: safeMediaUrl(media.video),
+    videoLink: safeMediaUrl(media.videoLink)
+  };
+}
 function mediaList(m){
   const list = (m.images||[]).map(i=>({type:'image', src:i}));
   if(m.video) list.push({type:'video', src:m.video});
   if(m.videoLink) list.push({type:'video-link', src:m.videoLink});
   return list;
 }
+function safeMediaUrl(value){
+  const raw = String(value || '').trim();
+  if(!raw) return null;
+  if(raw.startsWith('data:image/') || raw.startsWith('data:video/') || raw.startsWith('blob:')) return raw;
+  try{
+    const url = new URL(raw, window.location.href);
+    if(url.protocol === 'https:') return url.href;
+  }catch(e){}
+  return null;
+}
 function youtubeEmbed(url){
-  const m = url.match(/(?:youtu\.be\/|v=)([\w-]{6,})/);
-  return m ? `https://www.youtube.com/embed/${m[1]}` : null;
+  try{
+    const parsed = new URL(String(url || '').trim());
+    if(!['www.youtube.com','youtube.com','youtu.be','www.youtube-nocookie.com'].includes(parsed.hostname)) return null;
+    const id = parsed.hostname === 'youtu.be' ? parsed.pathname.slice(1) : parsed.searchParams.get('v') || parsed.pathname.split('/').pop();
+    return /^[\w-]{6,}$/.test(id || '') ? `https://www.youtube-nocookie.com/embed/${id}` : null;
+  }catch(e){ return null; }
 }
 
 /* ============ dropdowns ============ */
@@ -538,18 +565,18 @@ function renderProducts(){
     const m = mediaOf(p.id); const list = mediaList(m); const cat = getCat(p.category);
     const cover = list.find(x=>x.type==='image');
     return `
-    <div class="card" style="animation-delay:${Math.min(idx*0.06,0.5)}s" onclick="openDetail('${p.id}')">
+    <div class="card" style="animation-delay:${Math.min(idx*0.06,0.5)}s" role="button" tabindex="0" aria-label="Ver detalhes de ${escapeHTML(p.name)}" onclick="openDetail('${escapeHTML(p.id)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDetail('${escapeHTML(p.id)}')}">
       ${p.featured ? `<span class="ribbon">🔥 Destaque</span>` : ''}
       <div class="card-media">
-        ${cover ? `<img src="${cover.src}" alt="${escapeHTML(p.name)}" loading="lazy" decoding="async">` : cat.icon(cat.color).replace('width="14" height="14"','width="40" height="40"')}
+        ${cover ? `<img src="${escapeHTML(cover.src)}" alt="${escapeHTML(p.name)}" loading="lazy" decoding="async">` : cat.icon(cat.color).replace('width="14" height="14"','width="40" height="40"')}
         ${(m.video||m.videoLink) ? `<span class="video-tag">▶ vídeo</span>` : ''}
         ${list.length>1 ? `<span class="media-count">${list.length} itens</span>` : ''}
       </div>
       <div class="card-body">
         <div class="badge-row">
-          <span class="pill" style="background:${cat.color}">${cat.icon('#0a0a0b')} ${p.category}</span>
-          <span class="pill" style="background:${platInfo(p.platform).color}">${p.platform}</span>
-          <span class="pill" style="background:${condInfo(p.condition).bg}; color:${condInfo(p.condition).text}">${p.condition}</span>
+          <span class="pill" style="background:${cat.color}">${cat.icon('#0a0a0b')} ${escapeHTML(p.category)}</span>
+          <span class="pill" style="background:${platInfo(p.platform).color}">${escapeHTML(p.platform)}</span>
+          <span class="pill" style="background:${condInfo(p.condition).bg}; color:${condInfo(p.condition).text}">${escapeHTML(p.condition)}</span>
         </div>
         <div class="card-name">${escapeHTML(p.name)}</div>
         <div class="card-desc">${escapeHTML(p.description)}</div>
@@ -582,11 +609,11 @@ function renderDetail(){
   const current = detailMedia[detailIndex];
   let mainHtml = cat.icon(cat.color).replace('width="14" height="14"','width="60" height="60"');
   if(current){
-    if(current.type==='image') mainHtml = `<img src="${current.src}">`;
-    else if(current.type==='video') mainHtml = `<video src="${current.src}" controls></video>`;
+    if(current.type==='image') mainHtml = `<img src="${escapeHTML(current.src)}" alt="${escapeHTML(p.name)}">`;
+    else if(current.type==='video') mainHtml = `<video src="${escapeHTML(current.src)}" controls preload="metadata"></video>`;
     else if(current.type==='video-link'){
       const embed = youtubeEmbed(current.src);
-      mainHtml = embed ? `<iframe src="${embed}" allowfullscreen></iframe>` : `<a href="${current.src}" target="_blank" style="color:var(--cyan);">Assistir vídeo ↗</a>`;
+      mainHtml = embed ? `<iframe src="${embed}" title="Vídeo de ${escapeHTML(p.name)}" loading="lazy" sandbox="allow-scripts allow-presentation" allowfullscreen></iframe>` : `<a href="${escapeHTML(current.src)}" target="_blank" rel="noopener noreferrer" style="color:var(--cyan);">Assistir vídeo ↗</a>`;
     }
   }
   body.innerHTML = `
@@ -595,16 +622,16 @@ function renderDetail(){
       ${detailMedia.length>1 ? `<button class="gallery-nav prev" onclick="galleryNav(-1)">‹</button><button class="gallery-nav next" onclick="galleryNav(1)">›</button>` : ''}
     </div>
     ${detailMedia.length>1 ? `<div class="gallery-thumbs">${detailMedia.map((it,i)=>{
-      if(it.type==='image') return `<img src="${it.src}" class="gthumb ${i===detailIndex?'active':''}" alt="${p.name} — foto ${i+1}" loading="lazy" onclick="detailIndex=${i}; renderDetail();">`;
+      if(it.type==='image') return `<img src="${escapeHTML(it.src)}" class="gthumb ${i===detailIndex?'active':''}" alt="${escapeHTML(p.name)} — foto ${i+1}" loading="lazy" onclick="detailIndex=${i}; renderDetail();">`;
       return `<div class="gthumb ${i===detailIndex?'active':''}" onclick="detailIndex=${i}; renderDetail();">▶</div>`;
     }).join('')}</div>` : ''}
     <div class="badge-row" style="margin-top:16px;">
       <span class="pill" style="background:${cat.color}">${cat.icon('#0a0a0b')} ${p.category}</span>
-      <span class="pill" style="background:${platInfo(p.platform).color}">${p.platform}</span>
-      <span class="pill" style="background:${condInfo(p.condition).bg}; color:${condInfo(p.condition).text}">${p.condition}</span>
+      <span class="pill" style="background:${platInfo(p.platform).color}">${escapeHTML(p.platform)}</span>
+      <span class="pill" style="background:${condInfo(p.condition).bg}; color:${condInfo(p.condition).text}">${escapeHTML(p.condition)}</span>
       <span class="badge ${p.stock==='in'?'in':'out'}">${p.stock==='in'?'Em estoque':'Fora de estoque'}</span>
     </div>
-    <div class="detail-desc">${p.description}</div>
+    <div class="detail-desc">${escapeHTML(p.description)}</div>
     <div class="price" style="font-size:24px;">R$ ${p.price.toFixed(2).replace('.',',')}</div>
   `;
   document.getElementById('detailFoot').innerHTML = p.stock==='in'
@@ -690,7 +717,7 @@ async function sendRestockRequest(priority){
   const req = { id:'r'+Date.now(), code, name, productId:restockProduct.id, productName:restockProduct.name,
     priority, depositValue: priority ? half : 0, status:'pendente', createdAt: new Date().toLocaleString('pt-BR') };
   restockRequests.push(req);
-  await storageSet('restock-requests', restockRequests, true);
+  await storageSet('restock-requests', restockRequests, false);
 
   let msg = `Olá! Meu nome é ${name}. Gostaria de solicitar o produto "${restockProduct.name}", que está fora de estoque. Código: ${code}`;
   if(priority) msg += `\nJá paguei o sinal de prioridade de R$ ${half.toFixed(2)} via PIX (chave: ${config.pixKey}) — segue o comprovante em anexo referenciando o código acima.`;
@@ -726,7 +753,7 @@ function renderCart(){
   if(cart.length===0){ body.innerHTML='<div class="cart-empty">Seu carrinho está vazio.</div>'; foot.innerHTML=''; return; }
   body.innerHTML = cart.map(i => `
     <div class="cart-item">
-      <div class="thumb">${i.image ? `<img src="${i.image}">` : '🎮'}</div>
+      <div class="thumb">${safeMediaUrl(i.image) ? `<img src="${escapeHTML(safeMediaUrl(i.image))}" alt="">` : '🎮'}</div>
       <div class="info"><div class="name">${escapeHTML(i.name)}</div>
         <div class="qty"><button onclick="changeQty('${i.id}',-1)">−</button><span>${i.qty}</span><button onclick="changeQty('${i.id}',1)">+</button></div>
       </div><div>R$ ${(i.price*i.qty).toFixed(2).replace('.',',')}</div>
@@ -813,7 +840,7 @@ function saveAdminHash(hash){ try{ localStorage.setItem('loja:'+ADMIN_HASH_KEY,h
 function openAdmin(){
   if(adminAuthed){ renderAdmin(); }
   else if(!getAdminHash()){
-    document.getElementById('adminBody').innerHTML = `<div class="admin-security"><strong>Primeiro acesso</strong><p>Crie uma senha para proteger o painel neste navegador.</p><p><b>Importante:</b> isto não é autenticação de servidor. Para segurança real e administração em vários dispositivos, use um backend.</p></div><label>Nova senha</label><input type="password" id="adminPass" minlength="8" autocomplete="new-password" placeholder="Mínimo 8 caracteres"><button class="btn btn-primary" onclick="setupAdminPass()">Criar senha</button>`;
+    document.getElementById('adminBody').innerHTML = `<div class="admin-security"><strong>Painel local deste dispositivo</strong><p>Crie uma senha para evitar acessos acidentais neste navegador.</p><p><b>Segurança:</b> este site estático não oferece autenticação de servidor. As alterações ficam somente neste dispositivo e não devem ser usadas como proteção de dados sensíveis.</p></div><label>Nova senha</label><input type="password" id="adminPass" minlength="8" autocomplete="new-password" placeholder="Mínimo 8 caracteres"><button class="btn btn-primary" onclick="setupAdminPass()">Criar senha</button>`;
   } else {
     document.getElementById('adminBody').innerHTML = `<label>Senha do painel</label><input type="password" id="adminPass" autocomplete="current-password" placeholder="Digite a senha"><button class="btn btn-primary" onclick="checkAdminPass()">Entrar</button>`;
   }
@@ -838,7 +865,7 @@ function renderAdmin(){
     <label>Chave PIX (para sinais de prioridade)</label><input type="text" id="cfgPix" value="${config.pixKey}">
     <button class="btn btn-ghost" onclick="saveConfig()">Salvar dados da loja</button>
     <hr style="border-color:var(--line); margin:20px 0;">
-    <div style="padding:10px 12px;border:1px solid rgba(255,176,84,.35);background:rgba(255,176,84,.06);border-radius:9px;color:var(--muted);font-size:11px;margin-bottom:14px;">⚠️ Este painel é adequado para uma loja estática: os dados ficam no armazenamento do navegador quando não há um backend. Para administrar a loja de vários dispositivos com segurança, será necessário um banco/backend.</div>
+    <div style="padding:10px 12px;border:1px solid rgba(255,176,84,.35);background:rgba(255,176,84,.06);border-radius:9px;color:var(--muted);font-size:11px;margin-bottom:14px;">⚠️ Modo seguro estático: produtos, configurações e solicitações ficam somente neste navegador. Para operação multiusuário, será necessário um backend com autenticação e autorização no servidor.</div>
     <h3 style="margin-bottom:10px; font-size:14px;" id="formTitle">Adicionar produto</h3>
     <label>Nome</label><input type="text" id="newName">
     <label>Descrição</label><textarea id="newDesc"></textarea>
@@ -869,7 +896,7 @@ function renderAdmin(){
 function renderAdminList(){
   document.getElementById('adminProductList').innerHTML = products.map(p => `
     <div class="admin-list-item">
-      <div><div style="font-size:13px; font-weight:600;">${p.name}</div>
+      <div><div style="font-size:13px; font-weight:600;">${escapeHTML(p.name)}</div>
         <div class="meta">R$ ${p.price.toFixed(2).replace('.',',')} · ${escapeHTML(p.category)} · ${escapeHTML(p.platform)} · ${escapeHTML(p.condition)}</div></div>
       <div style="display:flex; gap:8px; align-items:center;">
         <div class="stock-toggle">
@@ -945,7 +972,7 @@ function resizeImage(file){
 }
 function renderImgPreview(){
   document.getElementById('imgPreview').innerHTML = pendingImages.map((img,i)=>
-    `<div class="thumb-wrap"><img src="${img}"><button class="rm" onclick="removePendingImage(${i})">×</button></div>`
+    `<div class="thumb-wrap"><img src="${escapeHTML(img)}" alt="Prévia da foto ${i+1}"><button class="rm" onclick="removePendingImage(${i})">×</button></div>`
   ).join('');
 }
 function removePendingImage(i){ pendingImages.splice(i,1); renderImgPreview(); }
@@ -1020,9 +1047,11 @@ async function saveProduct(){
   if(locked('saveProduct',1000)) return;
   const name = document.getElementById('newName').value;
   const price = parseFloat(document.getElementById('newPrice').value);
-  if(!name || isNaN(price)){ showToast('Preencha nome e preço'); return; }
+  if(!name || name.length>120 || isNaN(price) || !validPrice(price)){ showToast('Informe um nome válido e um preço entre R$ 0 e R$ 99.999.999'); return; }
   const videoLink = document.getElementById('newVideoLink').value.trim() || null;
-  const fields = { name, description:document.getElementById('newDesc').value, price,
+  const description = document.getElementById('newDesc').value.trim();
+  if(description.length > 1000){ showToast('A descrição deve ter no máximo 1000 caracteres'); return; }
+  const fields = { name:name.trim().slice(0,120), description, price,
     category:document.getElementById('newCat').value, platform:document.getElementById('newPlat').value,
     condition:document.getElementById('newCond').value, featured:document.getElementById('newFeatured').checked };
 
@@ -1073,8 +1102,6 @@ function showToast(text){
   const t = document.getElementById('toast'); t.textContent = text; t.classList.add('show');
   clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove('show'), 2600);
 }
-window.addEventListener('error', (e)=>{ e.preventDefault(); });
-window.addEventListener('unhandledrejection', (e)=>{ e.preventDefault(); });
 </script>
 </body>
 </html>
