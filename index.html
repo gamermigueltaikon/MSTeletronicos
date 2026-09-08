@@ -426,6 +426,10 @@ let editingId = null;
 async function init(){
   config = await storageGet('store-config', true);
   if(!config){ config = DEFAULT_CONFIG; await storageSet('store-config', config, true); }
+  if(config.whatsapp === '5511999999999'){
+    config.whatsapp = DEFAULT_CONFIG.whatsapp;
+    await storageSet('store-config', config, true);
+  }
   if(!config.pixKey) config.pixKey = DEFAULT_CONFIG.pixKey;
   document.getElementById('storeNameLabel').textContent = config.storeName;
   document.title = config.storeName;
