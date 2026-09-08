@@ -1,6 +1,6 @@
-# MS Teletrônicos
+# MST Eletrônicos
 
-Site estático da MS Teletrônicos, feito em HTML, CSS e JavaScript puro.
+Site estático da MST Eletrônicos, feito em HTML, CSS e JavaScript puro.
 
 ## Publicar na internet com GitHub Pages
 
