@@ -70,6 +70,8 @@
     display:flex; align-items:center; justify-content:center; padding:0 4px; }
 
   .hero{ padding:68px 28px 34px; max-width:1200px; margin:0 auto; position:relative; }
+  .hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);gap:34px;align-items:center;min-height:480px;}
+  .hero-copy{position:relative;z-index:2;}
   .hero h1{ font-size:clamp(32px,5vw,54px); font-weight:700; max-width:700px; line-height:1.12; }
   .hero h1 .grad{ background:linear-gradient(100deg,var(--cyan),var(--violet) 60%,var(--magenta)); -webkit-background-clip:text; background-clip:text; color:transparent; }
   .hero p{ color:var(--muted); max-width:540px; margin-top:16px; font-size:16px; }
@@ -84,6 +86,34 @@
   .ticker span{ font-size:12px; font-weight:600; padding:7px 14px 7px 10px; border-radius:20px; border:1px solid var(--line);
     cursor:pointer; transition:transform .15s, border-color .15s; display:inline-flex; align-items:center; gap:7px; animation:fadeUp .5s ease both; }
   .ticker span:hover{ transform:translateY(-2px); }
+  .hero-scene{height:370px;position:relative;display:grid;place-items:center;perspective:900px;isolation:isolate;}
+  .hero-scene::before{content:'';position:absolute;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(47,143,224,.24),rgba(124,77,255,.12) 42%,transparent 70%);filter:blur(10px);animation:scenePulse 4s ease-in-out infinite;}
+  .hero-scene::after{content:'';position:absolute;width:290px;height:70px;bottom:22px;border-radius:50%;background:rgba(34,24,90,.22);filter:blur(18px);transform:rotate(-8deg);}
+  .scene-ring{position:absolute;width:300px;height:300px;border:1px solid rgba(47,143,224,.34);border-radius:50%;transform:rotateX(68deg) rotateZ(-14deg);box-shadow:0 0 34px rgba(47,143,224,.18),inset 0 0 24px rgba(232,57,154,.16);animation:orbit 12s linear infinite;z-index:0;}
+  .scene-ring.r2{width:230px;height:230px;border-color:rgba(232,57,154,.45);transform:rotateX(68deg) rotateZ(42deg);animation-duration:9s;animation-direction:reverse;}
+  .scene-card{width:236px;height:154px;border:1px solid rgba(255,255,255,.42);border-radius:22px;background:linear-gradient(145deg,rgba(255,255,255,.78),rgba(220,226,244,.34) 38%,rgba(124,77,255,.46));box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 28px 48px rgba(46,33,110,.3),0 0 34px rgba(47,143,224,.22);transform:rotateX(12deg) rotateY(-18deg) rotateZ(-8deg);position:relative;z-index:2;animation:floatDevice 5s ease-in-out infinite;backdrop-filter:blur(12px);}
+  .scene-card::before{content:'';position:absolute;inset:12px;border:1px solid rgba(255,255,255,.35);border-radius:15px;}
+  .scene-card::after{content:'MST';position:absolute;right:18px;top:18px;font:700 12px 'Chakra Petch';letter-spacing:3px;color:rgba(255,255,255,.86);}
+  .scene-screen{position:absolute;left:25px;top:31px;width:128px;height:78px;border-radius:9px;background:linear-gradient(135deg,#12152f,#422f9f 48%,#f04ca7);overflow:hidden;box-shadow:inset 0 0 18px rgba(0,0,0,.4);}
+  .scene-screen::before{content:'PLAY';position:absolute;left:12px;bottom:11px;color:#fff;font:700 17px 'Chakra Petch';letter-spacing:2px;text-shadow:0 0 12px #4dd8ff;}
+  .scene-screen::after{content:'';position:absolute;width:90px;height:90px;right:-24px;top:-34px;border:12px solid rgba(77,216,255,.7);border-radius:50%;box-shadow:0 0 20px #4dd8ff;}
+  .scene-light{position:absolute;width:14px;height:14px;border-radius:50%;right:25px;bottom:25px;background:#4dd8ff;box-shadow:0 0 15px #4dd8ff,22px 0 #ff5fc4,22px 0 15px #ff5fc4;}
+  .scene-chip{position:absolute;z-index:3;font-size:22px;display:grid;place-items:center;width:48px;height:48px;border-radius:15px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.8);box-shadow:0 14px 24px rgba(33,25,90,.2);backdrop-filter:blur(8px);animation:floatChip 4s ease-in-out infinite;}
+  .scene-chip.one{top:30px;right:10%;}.scene-chip.two{bottom:62px;left:5%;animation-delay:-1.5s;font-size:18px;}.scene-chip.three{top:88px;left:4%;animation-delay:-2.4s;font-size:17px;}
+  @keyframes scenePulse{50%{transform:scale(1.12);opacity:.72;}}
+  @keyframes orbit{to{transform:rotateX(68deg) rotateZ(402deg);}}
+  @keyframes floatDevice{50%{transform:rotateX(16deg) rotateY(-12deg) rotateZ(-5deg) translateY(-12px);}}
+  @keyframes floatChip{50%{transform:translateY(-12px) rotate(5deg);}}
+  .stats-strip{max-width:1200px;margin:-4px auto 34px;padding:0 28px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  .stat-card{padding:16px 18px;border:1px solid rgba(227,229,238,.9);border-radius:14px;background:rgba(255,255,255,.72);box-shadow:0 12px 28px rgba(51,44,104,.06);position:relative;overflow:hidden;}
+  .stat-card::after{content:'';position:absolute;width:80px;height:80px;right:-28px;bottom:-38px;border-radius:50%;background:linear-gradient(135deg,rgba(47,143,224,.16),rgba(232,57,154,.12));}
+  .stat-value{font:700 22px 'Chakra Petch';background:linear-gradient(100deg,var(--cyan),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .stat-label{display:block;color:var(--muted);font-size:11px;margin-top:2px;}
+  .benefits{max-width:1200px;margin:0 auto 28px;padding:0 28px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  .benefit{display:flex;gap:13px;align-items:flex-start;padding:17px;border-radius:15px;background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(240,241,247,.75));border:1px solid var(--line);transition:transform .2s,box-shadow .2s;}
+  .benefit:hover{transform:translateY(-4px);box-shadow:0 16px 28px rgba(51,44,104,.1);}
+  .benefit-icon{width:38px;height:38px;flex:0 0 auto;display:grid;place-items:center;border-radius:12px;background:linear-gradient(135deg,rgba(47,143,224,.16),rgba(124,77,255,.15));font-size:19px;}
+  .benefit strong{font-size:13px;display:block;margin-bottom:3px;}.benefit span{font-size:11px;color:var(--muted);}
 
   .ribbon{ position:absolute; top:10px; left:-6px; background:linear-gradient(135deg,var(--magenta),var(--violet));
     color:#fff; font-size:10px; font-weight:700; padding:4px 10px; border-radius:0 12px 12px 0; z-index:2; animation:popIn .3s ease both; }
@@ -244,13 +274,15 @@
   .empty-state p{color:var(--muted);font-size:13px;}
   @media (max-width:700px){
     .topbar{padding:12px 14px;} .brand{font-size:16px;} .top-actions{gap:7px;} .icon-btn{padding:8px 10px;font-size:12px;}
-    .hero{padding:46px 16px 24px;} .hero h1{font-size:34px;} .hero p{font-size:14px;}
+    .hero{padding:46px 16px 24px;display:block;min-height:0;} .hero h1{font-size:34px;} .hero p{font-size:14px;}
+    .hero-scene{height:280px;margin-top:10px;transform:scale(.86);}.stats-strip{padding:0 16px;grid-template-columns:repeat(2,1fr);margin-bottom:24px;}.benefits{padding:0 16px;grid-template-columns:1fr;margin-bottom:24px;}
     .filters{padding:6px 16px 16px;display:grid;grid-template-columns:1fr 1fr;}
     .filters .spacer{display:none;} .filters .search-wrap{grid-column:1/-1;min-width:0;} .dropdown-btn{min-width:0;width:100%;}
     .grid{padding:0 16px 60px;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
     .card-media{height:130px;} .card-body{padding:12px;} .card-name{font-size:14px;} .card-desc{font-size:12px;} .price{font-size:15px;}
   }
   @media (max-width:430px){.grid{grid-template-columns:1fr;} .card-media{height:180px;} .top-actions .icon-btn:first-child{display:none;} }
+  @media (prefers-reduced-motion: reduce){.scene-ring,.scene-card,.scene-chip,.hero-scene::before{animation:none!important;}.hero-cta{animation:none!important;}}
 </style>
 </head>
 <body>
@@ -265,11 +297,32 @@
 </div>
 
 <div class="hero">
-  <h1 id="heroTitle">Sua próxima <span class="grad">jogada</span> está aqui.</h1>
-  <p>Peças testadas, estoque real e envio pra todo o Brasil. Fora de estoque? A gente te avisa assim que chegar.</p>
-  <button class="hero-cta" onclick="document.getElementById('productGrid').scrollIntoView({behavior:'smooth'})">🔥 Ver produtos em destaque</button>
-  <div class="trust-strip" id="trustStrip"></div>
-  <div class="ticker" id="ticker"></div>
+  <div class="hero-copy">
+    <div class="ribbon" style="position:relative;display:inline-block;top:auto;left:auto;border-radius:20px;margin-bottom:18px;">✦ tecnologia que dá vontade de jogar</div>
+    <h1 id="heroTitle">Seu próximo <span class="grad">nível</span> começa aqui.</h1>
+    <p>Games, consoles e acessórios selecionados para quem leva diversão a sério. Produtos testados, estoque real e atendimento humano.</p>
+    <button class="hero-cta" onclick="document.getElementById('productGrid').scrollIntoView({behavior:'smooth'})">🔥 Explorar a coleção</button>
+    <div class="trust-strip" id="trustStrip"></div>
+    <div class="ticker" id="ticker"></div>
+  </div>
+  <div class="hero-scene" aria-label="Ilustração 3D de um produto gamer">
+    <div class="scene-ring"></div><div class="scene-ring r2"></div>
+    <div class="scene-card"><div class="scene-screen"></div><div class="scene-light"></div></div>
+    <div class="scene-chip one">🎮</div><div class="scene-chip two">✦</div><div class="scene-chip three">⚡</div>
+  </div>
+</div>
+
+<div class="stats-strip" aria-label="Diferenciais da loja">
+  <div class="stat-card"><span class="stat-value">100%</span><span class="stat-label">produtos testados</span></div>
+  <div class="stat-card"><span class="stat-value">BR</span><span class="stat-label">envio para todo o Brasil</span></div>
+  <div class="stat-card"><span class="stat-value">PIX</span><span class="stat-label">5% de desconto</span></div>
+  <div class="stat-card"><span class="stat-value">24h</span><span class="stat-label">atendimento pelo WhatsApp</span></div>
+</div>
+
+<div class="benefits">
+  <div class="benefit"><div class="benefit-icon">🛡️</div><div><strong>Compra sem susto</strong><span>Itens revisados e descrição transparente.</span></div></div>
+  <div class="benefit"><div class="benefit-icon">🚀</div><div><strong>Achou, pediu, chegou</strong><span>Envio rápido e acompanhamento direto.</span></div></div>
+  <div class="benefit"><div class="benefit-icon">💬</div><div><strong>Gente de verdade</strong><span>Fale com a MST antes e depois da compra.</span></div></div>
 </div>
 
 <div class="filters">
