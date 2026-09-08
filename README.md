@@ -29,3 +29,26 @@ O site não exige servidor para funcionar. O modo publicado usa armazenamento lo
 - Sanitização dos dados recuperados do armazenamento local e expiração da sessão administrativa após 15 minutos.
 - Link do YouTube usa `youtube-nocookie.com`, `sandbox` e `rel="noopener noreferrer"`.
 - Manifesto web incluído para instalação como aplicativo no celular.
+
+## Checkout real com Mercado Pago
+
+O repositório agora inclui uma API serverless em `api/` que cria preferências de pagamento no Mercado Pago e recebe webhooks. O token nunca fica no `index.html`.
+
+Para ativar:
+
+1. Crie uma aplicação em [Mercado Pago Developers](https://www.mercadopago.com.br/developers/pt).
+2. Copie o **Access Token de produção**. Nunca o coloque no HTML ou em um commit.
+3. Crie um projeto na Vercel conectado a este repositório, usando a raiz do projeto.
+4. Cadastre estas variáveis no projeto Vercel: `MP_ACCESS_TOKEN`, `SITE_URL`, `SITE_ORIGIN` e `API_URL`. Use `.env.example` como referência.
+5. Faça o deploy e copie a URL do projeto, por exemplo `https://mst-checkout.vercel.app`.
+6. No `index.html`, altere `CHECKOUT_API_URL` para essa URL, sem `/api` no final:
+
+```js
+const CHECKOUT_API_URL = 'https://mst-checkout.vercel.app';
+```
+
+7. Publique novamente o site. O botão **Continuar para pagamento** abrirá o Checkout Pro do Mercado Pago com PIX, cartão e boleto disponíveis conforme a conta.
+
+O backend recalcula o preço e o frete com um catálogo server-side em `api/catalog.js`; não confia no valor enviado pelo navegador. Para alterar preços/estoque do checkout, atualize esse catálogo junto com os produtos exibidos.
+
+O webhook confirma o pagamento consultando a API do Mercado Pago. Para operação completa de estoque e painel de pedidos, o próximo passo é conectar o webhook a um banco de dados seguro; não use `localStorage` para conciliação financeira.
