@@ -37,12 +37,15 @@
   *{box-sizing:border-box; margin:0; padding:0;}
   body{
     background:
-      radial-gradient(ellipse 800px 460px at 10% -10%, rgba(47,143,224,0.14), transparent 60%),
-      radial-gradient(ellipse 700px 460px at 95% 5%, rgba(232,57,154,0.10), transparent 60%),
-      radial-gradient(ellipse 600px 500px at 50% 100%, rgba(124,77,255,0.08), transparent 60%),
-      var(--bg);
+      radial-gradient(ellipse 900px 520px at 8% -8%, rgba(47,143,224,0.19), transparent 62%),
+      radial-gradient(ellipse 780px 520px at 94% 8%, rgba(232,57,154,0.14), transparent 62%),
+      radial-gradient(ellipse 760px 620px at 48% 62%, rgba(124,77,255,0.10), transparent 66%),
+      linear-gradient(135deg,#f9faff 0%,#f3f4fb 48%,#f8f5fc 100%);
     color:var(--text); font-family:'Inter',sans-serif; min-height:100vh; line-height:1.55;
+    position:relative;overflow-x:hidden;
   }
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:-2;opacity:.4;background-image:linear-gradient(rgba(124,77,255,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(47,143,224,.055) 1px,transparent 1px);background-size:44px 44px;mask-image:linear-gradient(to bottom,black,transparent 78%);}
+  body::after{content:'';position:fixed;left:50%;bottom:-240px;width:900px;height:500px;transform:translateX(-50%);pointer-events:none;z-index:-1;background:radial-gradient(ellipse,rgba(124,77,255,.13),transparent 68%);filter:blur(24px);}
   h1,h2,h3,.brand{font-family:'Chakra Petch',sans-serif;}
   ::selection{background:var(--violet); color:#fff;}
   button, input, select, textarea{font-family:'Inter';}
@@ -53,7 +56,7 @@
   @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important;}}
 
   .topbar{ position:sticky; top:0; z-index:30; display:flex; align-items:center; justify-content:space-between;
-    padding:16px 28px; background:rgba(255,255,255,0.86); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
+    padding:16px 28px; background:rgba(255,255,255,0.72); backdrop-filter:blur(18px); border-bottom:1px solid rgba(227,229,238,.78); box-shadow:0 8px 30px rgba(59,48,122,.05); }
   .brand{ font-size:20px; font-weight:700; letter-spacing:0.5px; display:flex; align-items:center; gap:10px; }
   .brand .dot{ width:10px; height:10px; border-radius:50%;
     background:conic-gradient(var(--cyan), var(--magenta), var(--violet), var(--cyan)); animation: spin 4s linear infinite; }
@@ -129,6 +132,10 @@
   .copy-btn{ margin-top:8px; }
 
   .filters{ max-width:1200px; margin:0 auto; padding:6px 28px 20px; display:flex; gap:10px; flex-wrap:wrap; align-items:flex-start; position:relative; z-index:20; }
+  .catalog-heading{max-width:1200px;margin:4px auto 0;padding:0 28px 14px;display:flex;justify-content:space-between;align-items:end;gap:16px;}
+  .catalog-heading h2{font-size:27px;line-height:1.1;letter-spacing:-.3px;}
+  .catalog-heading h2 span{color:var(--violet);}
+  .catalog-heading p{color:var(--muted);font-size:12px;max-width:340px;text-align:right;}
   .filters input[type=text]{ background:var(--surface); border:1px solid var(--line); color:var(--text); padding:9px 12px; border-radius:8px; font-size:13px; }
   .filters .spacer{flex:1;}
 
@@ -145,7 +152,8 @@
   .swatch-icon{ width:24px; height:24px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; flex-shrink:0;
     box-shadow: inset 0 1px 1px rgba(255,255,255,0.35), inset 0 -3px 5px rgba(0,0,0,0.3), 0 2px 5px rgba(0,0,0,0.35); }
 
-  .grid{ max-width:1200px; margin:0 auto; padding:0 28px 80px; display:grid; grid-template-columns:repeat(auto-fill,minmax(232px,1fr)); gap:20px; }
+  .grid{ max-width:1200px; margin:0 auto; padding:0 28px 90px; display:grid; grid-template-columns:repeat(auto-fill,minmax(232px,1fr)); gap:20px; position:relative; }
+  .grid::before{content:'';position:absolute;inset:-20px -10px 30px;border-radius:28px;background:linear-gradient(135deg,rgba(255,255,255,.5),rgba(255,255,255,.16));border:1px solid rgba(255,255,255,.65);box-shadow:0 24px 70px rgba(54,42,119,.08);z-index:-1;}
   @keyframes fadeUp{ from{opacity:0; transform:translateY(16px);} to{opacity:1; transform:translateY(0);} }
   @keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
   @keyframes pulseGlow{ 0%,100%{box-shadow:0 0 0 0 rgba(77,216,255,0.35);} 50%{box-shadow:0 0 0 8px rgba(77,216,255,0);} }
@@ -265,7 +273,13 @@
   .status-atendido{ background:rgba(61,220,132,0.15); color:var(--success); }
   .priority-flag{ font-size:10px; background:linear-gradient(135deg,var(--magenta),var(--violet)); color:#fff; padding:2px 8px; border-radius:10px; font-weight:700; }
 
-  footer{ text-align:center; color:var(--muted); font-size:12px; padding:30px; border-top:1px solid var(--line); }
+  footer{ text-align:center; color:var(--muted); font-size:12px; padding:42px 30px 52px; border-top:1px solid rgba(227,229,238,.8); background:linear-gradient(180deg,rgba(255,255,255,.2),rgba(124,77,255,.06)); position:relative; }
+  footer::before{content:'MST ELETRÔNICOS';display:block;margin-bottom:8px;font:700 20px 'Chakra Petch';letter-spacing:2px;color:rgba(124,77,255,.48);}
+  .page-orb{position:fixed;pointer-events:none;border-radius:50%;filter:blur(1px);opacity:.48;z-index:-1;animation:driftOrb 14s ease-in-out infinite;}
+  .page-orb.one{width:13px;height:13px;top:24%;left:7%;background:#4dd8ff;box-shadow:0 0 24px 8px rgba(77,216,255,.35);}
+  .page-orb.two{width:9px;height:9px;top:62%;right:8%;background:#ff5fc4;box-shadow:0 0 20px 7px rgba(255,95,196,.28);animation-delay:-5s;}
+  .page-orb.three{width:7px;height:7px;top:42%;right:23%;background:#9d6bff;box-shadow:0 0 18px 6px rgba(157,107,255,.3);animation-delay:-9s;}
+  @keyframes driftOrb{50%{transform:translate(24px,-28px) scale(1.35);opacity:.8;}}
   .search-wrap{position:relative; flex:0 1 320px; min-width:220px;}
   .search-wrap input{padding-left:34px!important; width:100%;}
   .search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
@@ -275,6 +289,7 @@
   @media (max-width:700px){
     .topbar{padding:12px 14px;} .brand{font-size:16px;} .top-actions{gap:7px;} .icon-btn{padding:8px 10px;font-size:12px;}
     .hero{padding:46px 16px 24px;display:block;min-height:0;} .hero h1{font-size:34px;} .hero p{font-size:14px;}
+    .catalog-heading{padding:0 16px 12px;display:block;}.catalog-heading h2{font-size:23px;}.catalog-heading p{text-align:left;margin-top:5px;}
     .hero-scene{height:280px;margin-top:10px;transform:scale(.86);}.stats-strip{padding:0 16px;grid-template-columns:repeat(2,1fr);margin-bottom:24px;}.benefits{padding:0 16px;grid-template-columns:1fr;margin-bottom:24px;}
     .filters{padding:6px 16px 16px;display:grid;grid-template-columns:1fr 1fr;}
     .filters .spacer{display:none;} .filters .search-wrap{grid-column:1/-1;min-width:0;} .dropdown-btn{min-width:0;width:100%;}
@@ -282,12 +297,13 @@
     .card-media{height:130px;} .card-body{padding:12px;} .card-name{font-size:14px;} .card-desc{font-size:12px;} .price{font-size:15px;}
   }
   @media (max-width:430px){.grid{grid-template-columns:1fr;} .card-media{height:180px;} .top-actions .icon-btn:first-child{display:none;} }
-  @media (prefers-reduced-motion: reduce){.scene-ring,.scene-card,.scene-chip,.hero-scene::before{animation:none!important;}.hero-cta{animation:none!important;}}
+  @media (prefers-reduced-motion: reduce){.scene-ring,.scene-card,.scene-chip,.hero-scene::before,.page-orb{animation:none!important;}.hero-cta{animation:none!important;}}
 </style>
 </head>
 <body>
 
 <a class="sr-only" href="#productGrid">Pular para os produtos</a>
+<div class="page-orb one" aria-hidden="true"></div><div class="page-orb two" aria-hidden="true"></div><div class="page-orb three" aria-hidden="true"></div>
 <div class="topbar">
   <div class="brand"><span class="dot"></span><span id="storeNameLabel">MST ELETRÔNICOS</span></div>
   <div class="top-actions">
@@ -325,6 +341,7 @@
   <div class="benefit"><div class="benefit-icon">💬</div><div><strong>Gente de verdade</strong><span>Fale com a MST antes e depois da compra.</span></div></div>
 </div>
 
+<div class="catalog-heading"><div><h2>Escolha seu próximo <span>upgrade</span></h2><p>Uma seleção viva de tecnologia, nostalgia e acessórios para deixar seu setup ainda mais seu.</p></div></div>
 <div class="filters">
   <div class="dropdown" id="categoryDropdown"></div>
   <div class="dropdown" id="platformDropdown"></div>
