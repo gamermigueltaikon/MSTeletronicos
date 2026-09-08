@@ -26,4 +26,6 @@ O site não exige servidor para funcionar. O modo publicado usa armazenamento lo
 - Dados dinâmicos escapados antes de entrar no HTML.
 - Solicitações de clientes não são carregadas por visitantes nem sincronizadas publicamente.
 - Validação de preço, tamanho de nome e descrição no cadastro de produtos.
+- Sanitização dos dados recuperados do armazenamento local e expiração da sessão administrativa após 15 minutos.
 - Link do YouTube usa `youtube-nocookie.com`, `sandbox` e `rel="noopener noreferrer"`.
+- Manifesto web incluído para instalação como aplicativo no celular.

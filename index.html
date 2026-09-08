@@ -13,6 +13,7 @@
 <meta property="og:description" content="Games, consoles, celulares e acessórios testados, com atendimento direto pelo WhatsApp.">
 <meta property="og:locale" content="pt_BR">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; frame-src https://www.youtube.com https://www.youtube-nocookie.com; connect-src 'self';">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='44' fill='%234dd8ff'/%3E%3Ccircle cx='50' cy='50' r='28' fill='%23121214'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -47,6 +48,7 @@
   button, input, select, textarea{font-family:'Inter';}
   button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible{outline:2px solid var(--cyan); outline-offset:2px;}
   .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;}
+  .sr-only:focus{position:fixed!important;top:12px;left:12px;width:auto!important;height:auto!important;margin:0!important;padding:10px 14px!important;clip:auto!important;background:var(--text);color:#fff;z-index:100;border-radius:8px;}
   .admin-security{padding:12px;border:1px solid rgba(255,95,196,.25);background:rgba(255,95,196,.06);border-radius:10px;margin-bottom:14px;color:var(--muted);font-size:12px;line-height:1.5}.admin-security strong{display:block;color:var(--text);font-size:14px;margin-bottom:5px}.admin-security p{margin:5px 0}.floating-wa{position:fixed;right:18px;bottom:18px;z-index:40;background:#25d366;color:#07120b;border:0;border-radius:999px;padding:12px 16px;font-weight:800;box-shadow:0 10px 30px rgba(0,0,0,.35);text-decoration:none}.floating-wa:hover{filter:brightness(1.06)}
   @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important;}}
 
@@ -253,6 +255,7 @@
 </head>
 <body>
 
+<a class="sr-only" href="#productGrid">Pular para os produtos</a>
 <div class="topbar">
   <div class="brand"><span class="dot"></span><span id="storeNameLabel">MST ELETRÔNICOS</span></div>
   <div class="top-actions">
@@ -276,19 +279,19 @@
   <div class="search-wrap"><span class="search-icon" aria-hidden="true">⌕</span><label class="sr-only" for="searchBox">Buscar produto</label><input type="search" id="searchBox" placeholder="Buscar produto..." autocomplete="off" oninput="renderProducts()"></div>
 </div>
 
-<div class="grid" id="productGrid"></div>
+<div class="grid" id="productGrid" aria-live="polite"></div>
 
 <footer>Feito com atenção aos detalhes. Preços e prazos sujeitos a confirmação no fechamento do pedido.</footer>
 
-<div class="overlay" id="cartOverlay">
+<div class="overlay" id="cartOverlay" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
   <div class="drawer">
-    <div class="panel-head"><h2>Seu carrinho</h2><button class="close-x" aria-label="Fechar carrinho" onclick="closeCart()">×</button></div>
+    <div class="panel-head"><h2 id="cartTitle">Seu carrinho</h2><button class="close-x" aria-label="Fechar carrinho" onclick="closeCart()">×</button></div>
     <div class="panel-body" id="cartBody"></div>
     <div class="panel-foot" id="cartFoot"></div>
   </div>
 </div>
 
-<div class="overlay center" id="checkoutOverlay">
+<div class="overlay center" id="checkoutOverlay" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
   <div class="modal">
     <div class="panel-head"><h2 id="checkoutTitle">Finalizar pedido</h2><button class="close-x" aria-label="Fechar checkout" onclick="closeCheckout()">×</button></div>
     <div class="panel-body" id="checkoutBody"></div>
@@ -296,14 +299,14 @@
   </div>
 </div>
 
-<div class="overlay center" id="adminOverlay">
+<div class="overlay center" id="adminOverlay" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
   <div class="modal wide">
-    <div class="panel-head"><h2>Painel administrativo</h2><button class="close-x" aria-label="Fechar painel administrativo" onclick="closeAdmin()">×</button></div>
+    <div class="panel-head"><h2 id="adminTitle">Painel administrativo</h2><button class="close-x" aria-label="Fechar painel administrativo" onclick="closeAdmin()">×</button></div>
     <div class="panel-body" id="adminBody"></div>
   </div>
 </div>
 
-<div class="overlay center" id="detailOverlay">
+<div class="overlay center" id="detailOverlay" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
   <div class="modal wide">
     <div class="panel-head"><h2 id="detailTitle">Produto</h2><button class="close-x" aria-label="Fechar detalhes do produto" onclick="closeDetail()">×</button></div>
     <div class="panel-body" id="detailBody"></div>
@@ -311,15 +314,15 @@
   </div>
 </div>
 
-<div class="overlay center" id="restockOverlay">
+<div class="overlay center" id="restockOverlay" role="dialog" aria-modal="true" aria-labelledby="restockTitle">
   <div class="modal">
-    <div class="panel-head"><h2>Solicitar produto</h2><button class="close-x" aria-label="Fechar solicitação" onclick="closeRestock()">×</button></div>
+    <div class="panel-head"><h2 id="restockTitle">Solicitar produto</h2><button class="close-x" aria-label="Fechar solicitação" onclick="closeRestock()">×</button></div>
     <div class="panel-body" id="restockBody"></div>
     <div class="panel-foot" id="restockFoot"></div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 <a class="floating-wa" id="floatingWa" href="#" target="_blank" rel="noopener noreferrer" aria-label="Falar com a loja no WhatsApp">💬 WhatsApp</a>
 
 <script>
@@ -337,7 +340,7 @@ function iconPlay(c){ return `<svg width="26" height="26" viewBox="0 0 24 24" fi
 
 /* ============ constants ============ */
 const ADMIN_HASH_KEY = 'loja-admin-hash';
-const DEFAULT_ADMIN_HASH = 'b5906e2f5704ccc8aa1be95dc6ccda8e9ebc3997ccd3233ede23a3b51a669500';
+const ADMIN_SESSION_TTL = 15 * 60 * 1000;
 const CATEGORIES = [
   {name:'Consoles', color:'#4d8dff', icon:iconConsole},
   {name:'Celulares', color:'#9d6bff', icon:iconPhone},
@@ -423,7 +426,7 @@ const DEFAULT_PRODUCTS = [
 let config = null, products = [], cart = [], restockRequests = [];
 let mediaCache = {};
 let activeCategory = '', activePlatform = '';
-let adminAuthed = false;
+let adminAuthedUntil = 0;
 let detailProduct = null, detailMedia = [], detailIndex = 0;
 let restockProduct = null;
 let editingId = null;
@@ -432,6 +435,7 @@ let editingId = null;
 async function init(){
   config = await storageGet('store-config', true);
   if(!config){ config = DEFAULT_CONFIG; await storageSet('store-config', config, true); }
+  config = sanitizeConfig(config);
   if(config.whatsapp === '5511999999999'){
     config.whatsapp = DEFAULT_CONFIG.whatsapp;
     await storageSet('store-config', config, true);
@@ -445,15 +449,13 @@ async function init(){
   document.title = config.storeName;
   const wa = document.getElementById('floatingWa'); if(wa && validWhatsApp(config.whatsapp)) wa.href = `https://wa.me/${config.whatsapp}`;
 
-  products = await storageGet('products', true);
+  products = (await storageGet('products', true) || []).map(sanitizeProduct).filter(Boolean);
   if(!products || products.length===0){ products = DEFAULT_PRODUCTS; await storageSet('products', products, true); }
-  products.forEach(p=>{ if(!p.condition) p.condition='Novo'; });
-
   const mediaResults = await Promise.all(products.map(p=>storageGet('media:'+p.id, true)));
   products.forEach((p,i)=>{ mediaCache[p.id] = mediaResults[i] || {images:[], video:null, videoLink:null}; });
 
   cart = await storageGet('cart', false) || [];
-  restockRequests = await storageGet('restock-requests', false) || [];
+  restockRequests = (await storageGet('restock-requests', false) || []).map(sanitizeRequest).filter(Boolean);
 
   renderTrustStrip();
   renderCategoryDropdown();
@@ -463,6 +465,47 @@ async function init(){
   updateCartCount();
 }
 init();
+
+function sanitizeConfig(value){
+  const source = value && typeof value === 'object' ? value : {};
+  return {
+    storeName: String(source.storeName || DEFAULT_CONFIG.storeName).trim().slice(0,80) || DEFAULT_CONFIG.storeName,
+    whatsapp: validWhatsApp(normalizeWhatsApp(source.whatsapp)) ? normalizeWhatsApp(source.whatsapp) : DEFAULT_CONFIG.whatsapp,
+    pixKey: String(source.pixKey || DEFAULT_CONFIG.pixKey).trim().slice(0,200) || DEFAULT_CONFIG.pixKey
+  };
+}
+function sanitizeProduct(value){
+  if(!value || typeof value !== 'object') return null;
+  const price = Number(value.price);
+  const name = String(value.name || '').trim().slice(0,120);
+  if(!name || !validPrice(price)) return null;
+  return {
+    id: String(value.id || '').replace(/[^\w-]/g,'').slice(0,80) || `p${Date.now()}`,
+    name,
+    description: String(value.description || '').trim().slice(0,1000),
+    price,
+    category: CATEGORIES.some(c=>c.name===value.category) ? value.category : 'Outros aparelhos',
+    platform: PLATFORMS.some(p=>p.name===value.platform) ? value.platform : 'Outros',
+    condition: CONDITIONS[value.condition] ? value.condition : 'Novo',
+    stock: value.stock === 'out' ? 'out' : 'in',
+    featured: Boolean(value.featured)
+  };
+}
+function sanitizeRequest(value){
+  if(!value || typeof value !== 'object') return null;
+  const status = ['pendente','pago','atendido'].includes(value.status) ? value.status : 'pendente';
+  return {
+    id: String(value.id || '').replace(/[^\w-]/g,'').slice(0,80),
+    code: String(value.code || '').slice(0,30),
+    name: String(value.name || 'Cliente').trim().slice(0,100),
+    productId: String(value.productId || '').slice(0,80),
+    productName: String(value.productName || '').trim().slice(0,120),
+    priority: Boolean(value.priority),
+    depositValue: validPrice(value.depositValue) ? Number(value.depositValue) : 0,
+    status,
+    createdAt: String(value.createdAt || '').slice(0,40)
+  };
+}
 
 function renderTrustStrip(){
   document.getElementById('trustStrip').innerHTML = `
@@ -831,14 +874,15 @@ async function sendOrder(total, payLabel){
 }
 
 /* ============ admin ============ */
-function getAdminHash(){ try{ return localStorage.getItem('loja:'+ADMIN_HASH_KEY) || DEFAULT_ADMIN_HASH; }catch(e){ return DEFAULT_ADMIN_HASH; } }
+function getAdminHash(){ try{ return localStorage.getItem('loja:'+ADMIN_HASH_KEY) || ''; }catch(e){ return ''; } }
+function isAdminAuthed(){ return adminAuthedUntil > Date.now(); }
 async function hashText(value){
   if(window.crypto?.subtle){ const data=new TextEncoder().encode(value); const digest=await crypto.subtle.digest('SHA-256',data); return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
   return btoa(unescape(encodeURIComponent(value)));
 }
 function saveAdminHash(hash){ try{ localStorage.setItem('loja:'+ADMIN_HASH_KEY,hash); return true; }catch(e){ return false; } }
 function openAdmin(){
-  if(adminAuthed){ renderAdmin(); }
+  if(isAdminAuthed()){ renderAdmin(); }
   else if(!getAdminHash()){
     document.getElementById('adminBody').innerHTML = `<div class="admin-security"><strong>Painel local deste dispositivo</strong><p>Crie uma senha para evitar acessos acidentais neste navegador.</p><p><b>Segurança:</b> este site estático não oferece autenticação de servidor. As alterações ficam somente neste dispositivo e não devem ser usadas como proteção de dados sensíveis.</p></div><label>Nova senha</label><input type="password" id="adminPass" minlength="8" autocomplete="new-password" placeholder="Mínimo 8 caracteres"><button class="btn btn-primary" onclick="setupAdminPass()">Criar senha</button>`;
   } else {
@@ -851,11 +895,11 @@ async function setupAdminPass(){
   if(locked('adminpass',700)) return; const val=document.getElementById('adminPass').value;
   if(val.length<8){ showToast('Use uma senha com pelo menos 8 caracteres'); return; }
   if(!saveAdminHash(await hashText(val))){ showToast('Não foi possível salvar a senha neste navegador'); return; }
-  adminAuthed=true; renderAdmin(); showToast('Senha local criada');
+  adminAuthedUntil=Date.now()+ADMIN_SESSION_TTL; renderAdmin(); showToast('Senha local criada');
 }
 async function checkAdminPass(){
   if(locked('adminpass',700)) return; const val=document.getElementById('adminPass').value; const expected=getAdminHash();
-  if(expected && (await hashText(val))===expected){ adminAuthed=true; renderAdmin(); } else showToast('Senha incorreta');
+  if(expected && (await hashText(val))===expected){ adminAuthedUntil=Date.now()+ADMIN_SESSION_TTL; renderAdmin(); } else showToast('Senha incorreta');
 }
 function renderAdmin(){
   const body = document.getElementById('adminBody');
