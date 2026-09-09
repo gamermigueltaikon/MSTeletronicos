@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://gamermigueltaikon.github.io/MSTeletronicos/sitemap.xml
+Sitemap: https://mst-eletronicos.vercel.app/sitemap.xml
