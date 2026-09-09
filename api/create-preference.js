@@ -16,6 +16,7 @@ async function loadCatalog() {
   if (!response.ok) throw new Error(`Supabase catalog returned ${response.status}`);
   const rows = await response.json();
   if (!Array.isArray(rows)) throw new Error('Supabase catalog response is invalid');
+  if (rows.length === 0) return catalog;
   return Object.fromEntries(rows.map(row => [
     String(row.id),
     { id: String(row.id), name: String(row.name), price: Number(row.price), stock: Number(row.stock) }
