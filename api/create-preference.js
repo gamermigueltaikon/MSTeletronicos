@@ -4,6 +4,24 @@ const { catalog, estimateFreight } = require('./catalog');
 const ALLOWED_METHODS = new Set(['pix', 'credit', 'debit']);
 const SITE_URL = process.env.SITE_URL || 'https://gamermigueltaikon.github.io/MSTeletronicos';
 
+async function loadCatalog() {
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) return catalog;
+  const endpoint = `${process.env.SUPABASE_URL.replace(/\/$/, '')}/rest/v1/products?select=id,name,price,stock`;
+  const response = await fetch(endpoint, {
+    headers: {
+      apikey: process.env.SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${process.env.SUPABASE_ANON_KEY}`
+    }
+  });
+  if (!response.ok) throw new Error(`Supabase catalog returned ${response.status}`);
+  const rows = await response.json();
+  if (!Array.isArray(rows)) throw new Error('Supabase catalog response is invalid');
+  return Object.fromEntries(rows.map(row => [
+    String(row.id),
+    { id: String(row.id), name: String(row.name), price: Number(row.price), stock: Number(row.stock) }
+  ]));
+}
+
 function sendJson(res, status, body) {
   res.setHeader('Access-Control-Allow-Origin', process.env.SITE_ORIGIN || 'https://gamermigueltaikon.github.io');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -29,9 +47,10 @@ module.exports = async function handler(req, res) {
       return sendJson(res, 400, { error: 'Carrinho inválido' });
     }
 
+    const onlineCatalog = await loadCatalog();
     const items = [];
     for (const requested of body.items) {
-      const product = catalog[String(requested.id)];
+      const product = onlineCatalog[String(requested.id)];
       const quantity = Number(requested.quantity);
       if (!product) {
         return sendJson(res, 400, { error: `Produto ${String(requested.id).slice(0, 40)} não está disponível no catálogo online` });
