@@ -109,9 +109,10 @@
     animation:pulseGlow 2.4s ease-in-out infinite; transition:transform .15s; }
   .hero-cta:hover{ transform:translateY(-2px) scale(1.02); }
   .ticker{ margin-top:22px; display:flex; gap:10px; flex-wrap:wrap; }
-  .ticker span{ font-size:12px; font-weight:600; padding:7px 14px 7px 10px; border-radius:20px; border:1px solid var(--line);
+  .ticker span,.ticker button{ font-size:12px; font-weight:600; padding:7px 14px 7px 10px; border-radius:20px; border:1px solid var(--line);
     cursor:pointer; transition:transform .15s, border-color .15s; display:inline-flex; align-items:center; gap:7px; animation:fadeUp .5s ease both; }
-  .ticker span:hover{ transform:translateY(-2px); }
+  .ticker button{font-family:inherit;background:transparent;}
+  .ticker span:hover,.ticker button:hover{ transform:translateY(-2px); }
   .hero-scene{height:370px;position:relative;display:grid;place-items:center;perspective:900px;isolation:isolate;}
   .hero-scene::before{content:'';position:absolute;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(47,143,224,.24),rgba(124,77,255,.12) 42%,transparent 70%);filter:blur(10px);animation:scenePulse 4s ease-in-out infinite;}
   .hero-scene::after{content:'';position:absolute;width:290px;height:70px;bottom:22px;border-radius:50%;background:rgba(34,24,90,.22);filter:blur(18px);transform:rotate(-8deg);}
@@ -321,38 +322,152 @@
   }
   @media (max-width:430px){.grid{grid-template-columns:1fr;} .card-media{height:180px;} .top-actions .icon-btn:first-child{display:none;} }
   @media (prefers-reduced-motion: reduce){.scene-ring,.scene-card,.scene-chip,.hero-scene::before,.page-orb{animation:none!important;}.hero-cta{animation:none!important;}}
+
+  /* refinements for a calmer, more resilient storefront */
+  :root{--content-width:1240px;--shadow-soft:0 18px 48px rgba(51,44,104,.08);}
+  html{scroll-behavior:smooth;scroll-padding-top:84px;}
+  body{background:
+    radial-gradient(ellipse 820px 480px at 8% -8%,rgba(47,143,224,.14),transparent 64%),
+    radial-gradient(ellipse 720px 480px at 94% 4%,rgba(232,57,154,.11),transparent 66%),
+    linear-gradient(145deg,#fbfcff 0%,#f4f5fb 52%,#faf7fd 100%);}
+  .topbar{padding:13px max(18px,calc((100vw - var(--content-width)) / 2));min-height:66px;background:rgba(255,255,255,.82);box-shadow:0 10px 34px rgba(59,48,122,.08);}
+  .brand{white-space:nowrap;}
+  .brand .dot{box-shadow:0 0 0 5px rgba(47,143,224,.1),0 0 18px rgba(232,57,154,.3);}
+  .top-actions{gap:8px;}
+  .icon-btn{min-height:40px;box-shadow:0 2px 8px rgba(30,25,70,.04);}
+  .icon-btn:hover,.icon-btn:focus-visible{box-shadow:0 6px 16px rgba(47,143,224,.14);}
+  .hero{max-width:var(--content-width);padding-top:78px;padding-bottom:44px;}
+  .hero-copy{max-width:650px;}
+  .hero h1{letter-spacing:-1.2px;}
+  .hero p{font-size:16.5px;line-height:1.7;}
+  .hero-cta{min-height:48px;padding-inline:28px;color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.18);}
+  .trust-strip{gap:12px 24px;}
+  .trust-item{padding:7px 10px;border:1px solid rgba(227,229,238,.8);border-radius:999px;background:rgba(255,255,255,.58);}
+  .hero-scene{height:400px;}
+  .stats-strip,.benefits,.catalog-heading,.filters,.grid{max-width:var(--content-width);}
+  .stats-strip{gap:14px;margin-bottom:38px;}
+  .stat-card{padding:18px 20px;background:rgba(255,255,255,.8);box-shadow:var(--shadow-soft);}
+  .benefits{gap:16px;margin-bottom:40px;}
+  .benefit{padding:19px;background:rgba(255,255,255,.78);box-shadow:0 8px 26px rgba(51,44,104,.04);}
+  .catalog-heading{padding-bottom:18px;}
+  .catalog-heading h2{font-size:30px;}
+  .filters{padding-top:8px;padding-bottom:22px;align-items:center;}
+  .filters input[type=search],.dropdown-btn{min-height:44px;}
+  .dropdown-btn{box-shadow:0 4px 12px rgba(30,25,70,.04);}
+  .dropdown-list{padding:7px;box-shadow:0 18px 40px rgba(20,20,45,.18);}
+  .dropdown-item{width:100%;border:0;background:transparent;color:var(--text);text-align:left;min-height:40px;}
+  .dropdown-item:focus-visible{background:var(--surface-2);}
+  .grid{padding-bottom:110px;gap:22px;}
+  .grid::before{inset:-26px -14px 48px;}
+  .card{border-radius:16px;box-shadow:0 6px 18px rgba(30,25,70,.04);}
+  .card:hover{transform:translateY(-6px);box-shadow:0 18px 38px rgba(20,20,45,.16);}
+  .card-media{height:168px;background:linear-gradient(145deg,#f2f3f8,#e9ebf4);}
+  .card-body{padding:17px;gap:9px;}
+  .card-name{font-size:16px;line-height:1.3;}
+  .card-detail-trigger{display:block;width:100%;padding:0;border:0;background:none;color:inherit;font:inherit;font-weight:600;text-align:left;cursor:pointer;}
+  .card-detail-trigger:hover,.card-detail-trigger:focus-visible{color:var(--violet);}
+  .card-desc{line-height:1.5;}
+  .card-bottom{align-items:flex-end;}
+  .price{letter-spacing:-.2px;}
+  .btn{min-height:42px;}
+  .btn-primary{color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.15);}
+  .floating-wa{right:max(18px,calc((100vw - var(--content-width)) / 2));bottom:20px;padding:13px 18px;box-shadow:0 12px 28px rgba(14,91,47,.28);}
+  .overlay{background:rgba(16,14,30,.62);}
+  .modal,.drawer{box-shadow:0 28px 70px rgba(13,10,40,.25);}
+  .modal{border-radius:18px;}
+  .panel-head{padding:18px 22px;background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(255,255,255,.82));}
+  .panel-body{padding:22px;}
+  .close-x{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;}
+  .close-x:hover,.close-x:focus-visible{background:var(--surface-2);color:var(--text);}
+  .toast{bottom:24px;box-shadow:0 12px 30px rgba(20,20,45,.16);}
+  footer{padding-top:48px;}
+  @media (max-width:700px){
+    html{scroll-padding-top:72px;}
+    .topbar{padding:11px 14px;min-height:60px;}
+    .brand{font-size:15px;letter-spacing:.2px;}
+    .top-actions{gap:5px;}
+    .icon-btn{min-height:38px;padding:7px 9px;}
+    .hero{padding-top:40px;padding-bottom:28px;}
+    .hero h1{font-size:clamp(32px,9vw,42px);}
+    .hero p{font-size:14px;line-height:1.6;}
+    .hero-cta{width:100%;justify-content:center;margin-top:22px;}
+    .trust-strip{gap:7px;margin-top:20px;}
+    .trust-item{font-size:11px;padding:6px 8px;}
+    .hero-scene{height:270px;margin-top:2px;transform:none;}
+    .stats-strip{gap:10px;margin-bottom:26px;}
+    .stat-card{padding:14px 13px;}
+    .stat-value{font-size:20px;}
+    .benefit{padding:15px;}
+    .catalog-heading h2{font-size:25px;}
+    .filters{gap:8px;padding-bottom:18px;}
+    .filters input[type=search],.dropdown-btn{min-height:42px;}
+    .grid{gap:13px;padding-bottom:84px;}
+    .card{border-radius:14px;}
+    .card-media{height:138px;}
+    .card-body{padding:13px;gap:7px;}
+    .card-name{font-size:14px;}
+    .card-desc{font-size:12px;line-height:1.45;}
+    .card-bottom{display:block;}
+    .card-bottom .badge{display:inline-flex;margin-top:5px;}
+    .btn{font-size:12px;padding:9px 10px;}
+    .floating-wa{right:14px;bottom:max(14px,env(safe-area-inset-bottom));}
+    .modal{width:min(100%,calc(100vw - 24px));max-height:92vh;}
+    .drawer{width:min(100%,420px);}
+    .panel-head{padding:15px 16px;}
+    .panel-body{padding:16px;}
+    .panel-foot{padding:13px 16px;}
+    .gallery-main{height:270px;}
+  }
+  @media (max-width:430px){
+    .top-actions .icon-btn:first-child{display:flex;}
+    .top-actions .icon-btn:first-child{font-size:0;}
+    .top-actions .icon-btn:first-child:first-letter{font-size:16px;}
+    .top-actions .icon-btn:nth-child(2){display:none;}
+    .top-actions .icon-btn:last-child{font-size:0;}
+    .top-actions .icon-btn:last-child:first-letter{font-size:16px;}
+    .top-actions .icon-btn{padding-inline:10px;}
+  }
+  @media (prefers-contrast:more){
+    :root{--line:#b7b9c6;--muted:#4e5060;}
+    .icon-btn,.dropdown-btn,.filters input[type=search],.card{border-color:var(--line);}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto;}
+    .card:hover{transform:none;}
+  }
 </style>
 </head>
 <body>
 
 <a class="sr-only" href="#productGrid">Pular para os produtos</a>
 <div class="page-orb one" aria-hidden="true"></div><div class="page-orb two" aria-hidden="true"></div><div class="page-orb three" aria-hidden="true"></div>
-<div class="topbar">
+<header class="topbar">
   <div class="brand"><span class="dot"></span><span id="storeNameLabel">MST ELETRÔNICOS</span></div>
   <div class="top-actions">
-    <button class="icon-btn" id="accountBtn" onclick="openAccount()">👤 Entrar</button>
-    <button class="icon-btn" onclick="openAdmin()">⚙ Admin</button>
-    <button class="icon-btn cart-badge" id="cartBtn" onclick="openCart()">🛒 Carrinho <span class="cart-count" id="cartCount">0</span></button>
+    <button class="icon-btn" type="button" id="accountBtn" onclick="openAccount()">👤 Entrar</button>
+    <button class="icon-btn" type="button" onclick="openAdmin()">⚙ Admin</button>
+    <button class="icon-btn cart-badge" type="button" id="cartBtn" onclick="openCart()">🛒 Carrinho <span class="cart-count" id="cartCount" aria-live="polite">0</span></button>
   </div>
 
   <div class="overlay center" id="accountOverlay" role="dialog" aria-modal="true" aria-labelledby="accountTitle">
     <div class="modal">
-      <div class="panel-head"><h2 id="accountTitle">Conta do cliente</h2><button class="close-x" aria-label="Fechar conta" onclick="closeAccount()">×</button></div>
+      <div class="panel-head"><h2 id="accountTitle">Conta do cliente</h2><button class="close-x" type="button" aria-label="Fechar conta" onclick="closeAccount()">×</button></div>
       <div class="panel-body" id="accountBody"></div>
     </div>
   </div>
-</div>
+</header>
 
+<main>
 <div class="hero">
   <div class="hero-copy">
     <div class="ribbon" style="position:relative;display:inline-block;top:auto;left:auto;border-radius:20px;margin-bottom:18px;">✦ tecnologia que dá vontade de jogar</div>
     <h1 id="heroTitle">Seu próximo <span class="grad">nível</span> começa aqui.</h1>
     <p>Games, consoles e acessórios selecionados para quem leva diversão a sério. Produtos testados, estoque real e atendimento humano.</p>
-    <button class="hero-cta" onclick="document.getElementById('productGrid').scrollIntoView({behavior:'smooth'})">🔥 Explorar a coleção</button>
+    <button class="hero-cta" type="button" onclick="document.getElementById('productGrid').scrollIntoView({behavior:'smooth'})">🔥 Explorar a coleção</button>
     <div class="trust-strip" id="trustStrip"></div>
     <div class="ticker" id="ticker"></div>
   </div>
-  <div class="hero-scene" aria-label="Ilustração 3D de um produto gamer">
+  <div class="hero-scene" role="img" aria-label="Ilustração 3D de um produto gamer">
     <div class="scene-ring"></div><div class="scene-ring r2"></div>
     <div class="scene-card"><div class="scene-screen"></div><div class="scene-light"></div></div>
     <div class="scene-chip one">🎮</div><div class="scene-chip two">✦</div><div class="scene-chip three">⚡</div>
@@ -381,12 +496,13 @@
 </div>
 
 <div class="grid" id="productGrid" aria-live="polite"></div>
+</main>
 
 <footer>Feito com atenção aos detalhes. Preços e prazos sujeitos a confirmação no fechamento do pedido.</footer>
 
 <div class="overlay" id="cartOverlay" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
   <div class="drawer">
-    <div class="panel-head"><h2 id="cartTitle">Seu carrinho</h2><button class="close-x" aria-label="Fechar carrinho" onclick="closeCart()">×</button></div>
+    <div class="panel-head"><h2 id="cartTitle">Seu carrinho</h2><button class="close-x" type="button" aria-label="Fechar carrinho" onclick="closeCart()">×</button></div>
     <div class="panel-body" id="cartBody"></div>
     <div class="panel-foot" id="cartFoot"></div>
   </div>
@@ -394,7 +510,7 @@
 
 <div class="overlay center" id="checkoutOverlay" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
   <div class="modal">
-    <div class="panel-head"><h2 id="checkoutTitle">Finalizar pedido</h2><button class="close-x" aria-label="Fechar checkout" onclick="closeCheckout()">×</button></div>
+    <div class="panel-head"><h2 id="checkoutTitle">Finalizar pedido</h2><button class="close-x" type="button" aria-label="Fechar checkout" onclick="closeCheckout()">×</button></div>
     <div class="panel-body" id="checkoutBody"></div>
     <div class="panel-foot" id="checkoutFoot"></div>
   </div>
@@ -402,14 +518,14 @@
 
 <div class="overlay center" id="adminOverlay" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
   <div class="modal wide">
-    <div class="panel-head"><h2 id="adminTitle">Painel administrativo</h2><button class="close-x" aria-label="Fechar painel administrativo" onclick="closeAdmin()">×</button></div>
+    <div class="panel-head"><h2 id="adminTitle">Painel administrativo</h2><button class="close-x" type="button" aria-label="Fechar painel administrativo" onclick="closeAdmin()">×</button></div>
     <div class="panel-body" id="adminBody"></div>
   </div>
 </div>
 
 <div class="overlay center" id="detailOverlay" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
   <div class="modal wide">
-    <div class="panel-head"><h2 id="detailTitle">Produto</h2><button class="close-x" aria-label="Fechar detalhes do produto" onclick="closeDetail()">×</button></div>
+    <div class="panel-head"><h2 id="detailTitle">Produto</h2><button class="close-x" type="button" aria-label="Fechar detalhes do produto" onclick="closeDetail()">×</button></div>
     <div class="panel-body" id="detailBody"></div>
     <div class="panel-foot" id="detailFoot"></div>
   </div>
@@ -417,7 +533,7 @@
 
 <div class="overlay center" id="restockOverlay" role="dialog" aria-modal="true" aria-labelledby="restockTitle">
   <div class="modal">
-    <div class="panel-head"><h2 id="restockTitle">Solicitar produto</h2><button class="close-x" aria-label="Fechar solicitação" onclick="closeRestock()">×</button></div>
+    <div class="panel-head"><h2 id="restockTitle">Solicitar produto</h2><button class="close-x" type="button" aria-label="Fechar solicitação" onclick="closeRestock()">×</button></div>
     <div class="panel-body" id="restockBody"></div>
     <div class="panel-foot" id="restockFoot"></div>
   </div>
@@ -762,43 +878,53 @@ function renderCategoryDropdown(){
   const el = document.getElementById('categoryDropdown');
   const active = getCat(activeCategory);
   el.innerHTML = `
-    <button class="dropdown-btn" onclick="toggleDropdown('categoryList')">
+    <button class="dropdown-btn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="categoryList" onclick="toggleDropdown('categoryList')">
       <span style="display:flex;align-items:center;gap:8px;">
         ${activeCategory ? `<span class="swatch-icon" style="background:${active.color}22;">${active.icon(active.color)}</span>${activeCategory}` : 'Produto'}
       </span><span>▾</span>
     </button>
-    <div class="dropdown-list" id="categoryList">
-      <div class="dropdown-item" onclick="setCategory('')"><span class="swatch-icon" style="background:#2c2c31;">${iconOther('#8a8a92')}</span> Todos os produtos</div>
-      ${CATEGORIES.map(c=>`<div class="dropdown-item" onclick="setCategory('${c.name}')"><span class="swatch-icon" style="background:${c.color}22;">${c.icon(c.color)}</span> ${c.name}</div>`).join('')}
+    <div class="dropdown-list" id="categoryList" role="listbox">
+      <button class="dropdown-item" type="button" role="option" onclick="setCategory('')"><span class="swatch-icon" style="background:#2c2c31;">${iconOther('#8a8a92')}</span> Todos os produtos</button>
+      ${CATEGORIES.map(c=>`<button class="dropdown-item" type="button" role="option" onclick="setCategory('${c.name}')"><span class="swatch-icon" style="background:${c.color}22;">${c.icon(c.color)}</span> ${c.name}</button>`).join('')}
     </div>
   `;
 }
 function renderPlatformDropdown(){
   const el = document.getElementById('platformDropdown');
   el.innerHTML = `
-    <button class="dropdown-btn" onclick="toggleDropdown('platformList')">
+    <button class="dropdown-btn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="platformList" onclick="toggleDropdown('platformList')">
       <span style="display:flex;align-items:center;gap:8px;">
         ${activePlatform ? `<span class="swatch-icon" style="background:${platInfo(activePlatform).color}">${platInfo(activePlatform).mono}</span>${activePlatform}` : 'Todas as plataformas'}
       </span><span>▾</span>
     </button>
-    <div class="dropdown-list" id="platformList">
-      <div class="dropdown-item" onclick="setPlatform('')"><span class="swatch-icon" style="background:#3a3a40"></span> Todas as plataformas</div>
-      ${PLATFORMS.map(p=>`<div class="dropdown-item" onclick="setPlatform('${p.name}')"><span class="swatch-icon" style="background:${p.color}; color:#fff;">${p.mono}</span> ${p.name}</div>`).join('')}
+    <div class="dropdown-list" id="platformList" role="listbox">
+      <button class="dropdown-item" type="button" role="option" onclick="setPlatform('')"><span class="swatch-icon" style="background:#3a3a40"></span> Todas as plataformas</button>
+      ${PLATFORMS.map(p=>`<button class="dropdown-item" type="button" role="option" onclick="setPlatform('${p.name}')"><span class="swatch-icon" style="background:${p.color}; color:#fff;">${p.mono}</span> ${p.name}</button>`).join('')}
     </div>
   `;
 }
 function toggleDropdown(id){
   document.querySelectorAll('.dropdown-list').forEach(d=>{ if(d.id!==id) d.classList.remove('open'); });
-  document.getElementById(id).classList.toggle('open');
+  const list = document.getElementById(id);
+  const isOpen = list.classList.toggle('open');
+  const trigger = list.previousElementSibling;
+  if(trigger) trigger.setAttribute('aria-expanded', String(isOpen));
 }
-document.addEventListener('click', (e)=>{ if(!e.target.closest('.dropdown')){ document.querySelectorAll('.dropdown-list').forEach(d=>d.classList.remove('open')); } });
-function setCategory(name){ activeCategory=name; renderCategoryDropdown(); renderProducts(); toggleDropdown('categoryList'); }
-function setPlatform(name){ activePlatform=name; renderPlatformDropdown(); renderProducts(); toggleDropdown('platformList'); }
+document.addEventListener('click', (e)=>{
+  if(!e.target.closest('.dropdown')){
+    document.querySelectorAll('.dropdown-list').forEach(d=>{
+      d.classList.remove('open');
+      if(d.previousElementSibling) d.previousElementSibling.setAttribute('aria-expanded','false');
+    });
+  }
+});
+function setCategory(name){ activeCategory=name; renderCategoryDropdown(); renderProducts(); }
+function setPlatform(name){ activePlatform=name; renderPlatformDropdown(); renderProducts(); }
 
 /* ============ ticker ============ */
 function renderTicker(){
   document.getElementById('ticker').innerHTML = CATEGORIES.map(c =>
-    `<span style="border-color:${c.color}55; color:${c.color};" onclick="setCategory('${c.name}')">${c.icon(c.color)} ${c.name}</span>`
+    `<button type="button" class="ticker-item" style="border-color:${c.color}55; color:${c.color};" onclick="setCategory('${c.name}')">${c.icon(c.color)} ${c.name}</button>`
   ).join('');
 }
 
@@ -816,7 +942,7 @@ function renderProducts(){
     const m = mediaOf(p.id); const list = mediaList(m); const cat = getCat(p.category);
     const cover = list.find(x=>x.type==='image');
     return `
-    <div class="card" style="animation-delay:${Math.min(idx*0.06,0.5)}s" role="button" tabindex="0" aria-label="Ver detalhes de ${escapeHTML(p.name)}" onclick="openDetail('${escapeHTML(p.id)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDetail('${escapeHTML(p.id)}')}">
+    <article class="card" style="animation-delay:${Math.min(idx*0.06,0.5)}s" onclick="if(!event.target.closest('button,a')) openDetail('${escapeHTML(p.id)}')">
       ${p.featured ? `<span class="ribbon">🔥 Destaque</span>` : ''}
       <div class="card-media">
         ${cover ? `<img src="${escapeHTML(cover.src)}" alt="${escapeHTML(p.name)}" loading="lazy" decoding="async">` : cat.icon(cat.color).replace('width="14" height="14"','width="40" height="40"')}
@@ -829,7 +955,7 @@ function renderProducts(){
           <span class="pill" style="background:${platInfo(p.platform).color}">${escapeHTML(p.platform)}</span>
           <span class="pill" style="background:${condInfo(p.condition).bg}; color:${condInfo(p.condition).text}">${escapeHTML(p.condition)}</span>
         </div>
-        <div class="card-name">${escapeHTML(p.name)}</div>
+        <div class="card-name"><button class="card-detail-trigger" type="button" onclick="openDetail('${escapeHTML(p.id)}')" aria-label="Ver detalhes de ${escapeHTML(p.name)}">${escapeHTML(p.name)}</button></div>
         <div class="card-desc">${escapeHTML(p.description)}</div>
         <div class="card-bottom">
           <span class="price">R$ ${p.price.toFixed(2).replace('.', ',')}</span>
@@ -840,7 +966,7 @@ function renderProducts(){
           : `<button class="btn btn-outline" onclick="event.stopPropagation(); openRestock('${p.id}')">Solicitar produto</button>`
         }
       </div>
-    </div>
+    </article>
   `;}).join('');
 }
 
@@ -901,6 +1027,25 @@ function openRestock(id){
   document.getElementById('restockOverlay').classList.add('open');
 }
 function closeRestock(){ document.getElementById('restockOverlay').classList.remove('open'); }
+
+const overlayClosers = {
+  accountOverlay: closeAccount,
+  cartOverlay: closeCart,
+  checkoutOverlay: closeCheckout,
+  adminOverlay: closeAdmin,
+  detailOverlay: closeDetail,
+  restockOverlay: closeRestock
+};
+document.querySelectorAll('.overlay').forEach(overlay=>{
+  overlay.addEventListener('click', event=>{
+    if(event.target === overlay) overlayClosers[overlay.id]?.();
+  });
+});
+document.addEventListener('keydown', event=>{
+  if(event.key !== 'Escape') return;
+  const openOverlay = [...document.querySelectorAll('.overlay.open')].pop();
+  if(openOverlay) overlayClosers[openOverlay.id]?.();
+});
 
 function renderRestockStep(step){
   const body = document.getElementById('restockBody'), foot = document.getElementById('restockFoot');
