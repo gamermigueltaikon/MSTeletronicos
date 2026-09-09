@@ -68,3 +68,5 @@ O backend recalcula o preço e o frete com um catálogo server-side em `api/cata
 O carrinho também é normalizado ao carregar: itens antigos, produtos removidos e quantidades inválidas são descartados para evitar falhas no pagamento. O catálogo online inicial mantém os quatro produtos demonstrativos disponíveis; ajuste o estoque em `api/catalog.js` quando cadastrar produtos reais.
 
 O webhook confirma o pagamento consultando a API do Mercado Pago. Para operação completa de estoque e painel de pedidos, o próximo passo é conectar o webhook a um banco de dados seguro; não use `localStorage` para conciliação financeira.
+
+O endpoint `/api/products` carrega os anúncios publicados no Supabase para todos os visitantes. Configure `SUPABASE_URL` e `SUPABASE_ANON_KEY` na Vercel e faça um redeploy. A publicação das alterações do painel exige ainda uma rota administrativa protegida por chave secreta; não habilite gravação pública com a chave anon.
