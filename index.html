@@ -548,7 +548,7 @@ async function init(){
   const mediaResults = await Promise.all(products.map(p=>storageGet('media:'+p.id, true)));
   products.forEach((p,i)=>{ mediaCache[p.id] = mediaResults[i] || {images:[], video:null, videoLink:null}; });
 
-  cart = await storageGet('cart', false) || [];
+  cart = sanitizeCart(await storageGet('cart', false) || []);
   restockRequests = (await storageGet('restock-requests', false) || []).map(sanitizeRequest).filter(Boolean);
 
   renderTrustStrip();
@@ -599,6 +599,15 @@ function sanitizeRequest(value){
     status,
     createdAt: String(value.createdAt || '').slice(0,40)
   };
+}
+function sanitizeCart(value){
+  if(!Array.isArray(value)) return [];
+  return value.map(item=>{
+    const product = products.find(p=>p.id===item.id);
+    const quantity = Math.min(Math.max(Number(item.qty),1),10);
+    if(!product || !Number.isInteger(quantity) || product.stock !== 'in') return null;
+    return {id:product.id,name:product.name,price:product.price,image:safeMediaUrl(item.image),qty:quantity};
+  }).filter(Boolean);
 }
 
 function renderTrustStrip(){

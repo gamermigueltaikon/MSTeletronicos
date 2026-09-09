@@ -33,8 +33,11 @@ module.exports = async function handler(req, res) {
     for (const requested of body.items) {
       const product = catalog[String(requested.id)];
       const quantity = Number(requested.quantity);
-      if (!product || !Number.isInteger(quantity) || quantity < 1 || quantity > 10 || quantity > product.stock) {
-        return sendJson(res, 400, { error: 'Produto indisponível ou quantidade inválida' });
+      if (!product) {
+        return sendJson(res, 400, { error: `Produto ${String(requested.id).slice(0, 40)} não está disponível no catálogo online` });
+      }
+      if (!Number.isInteger(quantity) || quantity < 1 || quantity > 10 || quantity > product.stock) {
+        return sendJson(res, 400, { error: `${product.name}: quantidade inválida ou estoque insuficiente` });
       }
       items.push({ title: product.name, quantity, unit_price: product.price, currency_id: 'BRL' });
     }

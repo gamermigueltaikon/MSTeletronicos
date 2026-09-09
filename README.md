@@ -65,4 +65,6 @@ const CHECKOUT_API_URL = 'https://mst-checkout.vercel.app';
 
 O backend recalcula o preço e o frete com um catálogo server-side em `api/catalog.js`; não confia no valor enviado pelo navegador. Para alterar preços/estoque do checkout, atualize esse catálogo junto com os produtos exibidos.
 
+O carrinho também é normalizado ao carregar: itens antigos, produtos removidos e quantidades inválidas são descartados para evitar falhas no pagamento. O catálogo online inicial mantém os quatro produtos demonstrativos disponíveis; ajuste o estoque em `api/catalog.js` quando cadastrar produtos reais.
+
 O webhook confirma o pagamento consultando a API do Mercado Pago. Para operação completa de estoque e painel de pedidos, o próximo passo é conectar o webhook a um banco de dados seguro; não use `localStorage` para conciliação financeira.
