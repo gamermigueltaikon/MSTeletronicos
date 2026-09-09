@@ -465,7 +465,7 @@ function locked(key, ms){ if(locks[key]) return true; locks[key]=true; setTimeou
 
 /* ============ storage helpers ============ */
 const SHARED_STORAGE_ENABLED = false;
-const CHECKOUT_API_URL = '';
+const CHECKOUT_API_URL = 'https://mst-eletronicos.vercel.app';
 const DATA_API_URL = 'https://ep-wandering-pond-aej2amx6.apirest.c-2.us-east-2.aws.neon.tech/neondb/rest/v1';
 async function storageGet(key, shared){
   shared = Boolean(shared && SHARED_STORAGE_ENABLED);
