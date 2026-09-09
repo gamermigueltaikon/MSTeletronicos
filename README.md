@@ -69,4 +69,14 @@ O carrinho também é normalizado ao carregar: itens antigos, produtos removidos
 
 O webhook confirma o pagamento consultando a API do Mercado Pago. Para operação completa de estoque e painel de pedidos, o próximo passo é conectar o webhook a um banco de dados seguro; não use `localStorage` para conciliação financeira.
 
-O endpoint `/api/products` carrega os anúncios publicados no Supabase para todos os visitantes. Configure `SUPABASE_URL` e `SUPABASE_ANON_KEY` na Vercel e faça um redeploy. A publicação das alterações do painel exige ainda uma rota administrativa protegida por chave secreta; não habilite gravação pública com a chave anon.
+O endpoint `/api/products` carrega os anúncios publicados no Supabase para todos os visitantes. Configure `SUPABASE_URL` e `SUPABASE_ANON_KEY` na Vercel e faça um redeploy. Para salvar anúncios pelo painel, configure também `SUPABASE_SERVICE_ROLE_KEY` (somente na Vercel) e `ADMIN_API_KEY`. A senha criada no painel deve ser igual ao valor de `ADMIN_API_KEY`; ela nunca deve ser colocada no código.
+
+Após criar `products`, adicione os campos extras no SQL Editor do Supabase:
+
+```sql
+alter table public.products add column if not exists category text not null default 'Outros aparelhos';
+alter table public.products add column if not exists platform text not null default 'Outros';
+alter table public.products add column if not exists condition text not null default 'Novo';
+alter table public.products add column if not exists featured boolean not null default false;
+alter table public.products add column if not exists media jsonb not null default '{}'::jsonb;
+```
