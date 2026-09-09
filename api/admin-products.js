@@ -56,11 +56,26 @@ module.exports = async function handler(req, res) {
     }
     const product = productPayload(req.body);
     if (!product) return json(res, 400, { error: 'Dados do anúncio inválidos' });
-    const response = await fetch(`${base}/rest/v1/products`, { method: 'POST', headers, body: JSON.stringify(product) });
+    let response = await fetch(`${base}/rest/v1/products`, { method: 'POST', headers, body: JSON.stringify(product) });
     if (!response.ok) {
       const details = await response.text();
       console.error('Supabase admin products error', response.status, details);
-      return json(res, 502, { error: 'Não foi possível salvar o anúncio' });
+      // Keep saving working when the base table exists but optional marketplace
+      // columns have not been added yet.
+      const baseProduct = {
+        id: product.id,
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        stock: product.stock,
+        image_url: product.image_url
+      };
+      response = await fetch(`${base}/rest/v1/products`, { method: 'POST', headers, body: JSON.stringify(baseProduct) });
+      if (!response.ok) {
+        const fallbackDetails = await response.text();
+        console.error('Supabase base product error', response.status, fallbackDetails);
+        return json(res, 502, { error: 'Não foi possível salvar o anúncio. Verifique a tabela products no Supabase.' });
+      }
     }
     return json(res, 200, { ok: true });
   } catch (error) {
