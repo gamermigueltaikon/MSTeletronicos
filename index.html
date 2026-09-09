@@ -380,6 +380,17 @@
   .close-x{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;}
   .close-x:hover,.close-x:focus-visible{background:var(--surface-2);color:var(--text);}
   .toast{bottom:24px;box-shadow:0 12px 30px rgba(20,20,45,.16);}
+  .account-intro{margin-bottom:18px;color:var(--muted);line-height:1.55;font-size:13px;}
+  .account-form{display:grid;gap:10px;}
+  .account-form label{margin-top:2px;}
+  .account-form input{margin:0;}
+  .account-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+  .account-actions .btn{flex:1 1 140px;margin-top:0;}
+  .account-switch{margin:18px 0 0;padding-top:16px;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:12px;}
+  .account-switch button{border:0;background:none;color:var(--violet);font-weight:700;cursor:pointer;padding:2px 4px;}
+  .account-message{padding:11px 12px;border-radius:10px;background:rgba(47,143,224,.08);border:1px solid rgba(47,143,224,.22);color:var(--text);font-size:13px;line-height:1.45;margin-bottom:14px;}
+  .account-message.error{background:rgba(220,70,90,.08);border-color:rgba(220,70,90,.25);}
+  .account-password-hint{font-size:11px;color:var(--muted);margin-top:-4px;}
   footer{padding-top:48px;}
   @media (max-width:700px){
     html{scroll-padding-top:72px;}
@@ -592,7 +603,7 @@ function locked(key, ms){ if(locks[key]) return true; locks[key]=true; setTimeou
 const SHARED_STORAGE_ENABLED = false;
 const CHECKOUT_API_URL = 'https://mst-eletronicos.vercel.app';
 const PUBLIC_PRODUCTS_API = `${CHECKOUT_API_URL}/api/products`;
-let supabaseClient = null, currentUser = null;
+let supabaseClient = null, currentUser = null, accountMode = 'login';
 const DATA_API_URL = 'https://ep-wandering-pond-aej2amx6.apirest.c-2.us-east-2.aws.neon.tech/neondb/rest/v1';
 async function storageGet(key, shared){
   shared = Boolean(shared && SHARED_STORAGE_ENABLED);
@@ -712,47 +723,73 @@ function updateAccountButton(){
 }
 function openAccount(){
   document.getElementById('accountOverlay').classList.add('open');
-  renderAccount();
+  accountMode='login'; renderAccount();
 }
 function closeAccount(){ document.getElementById('accountOverlay').classList.remove('open'); }
-function renderAccount(message=''){
+function authErrorMessage(error){
+  const raw = String(error?.message || error || '');
+  if(/invalid login credentials/i.test(raw)) return 'E-mail ou senha incorretos.';
+  if(/user already registered/i.test(raw)) return 'Este e-mail já está cadastrado. Entre na conta ou recupere a senha.';
+  if(/email not confirmed/i.test(raw)) return 'Confirme seu e-mail antes de entrar. Verifique também a caixa de spam.';
+  if(/password should be at least/i.test(raw)) return 'A senha precisa ter pelo menos 8 caracteres.';
+  if(/invalid email/i.test(raw)) return 'Digite um e-mail válido.';
+  return raw || 'Não foi possível concluir. Tente novamente.';
+}
+function renderAccount(message='', isError=false){
   const body = document.getElementById('accountBody');
   if(!supabaseClient){
     body.innerHTML = '<p style="color:var(--muted)">O login ainda está sendo configurado. Tente novamente em alguns instantes.</p>';
     return;
   }
   if(currentUser){
-    body.innerHTML = `<p>Você está conectado como <b>${escapeHTML(currentUser.email)}</b>.</p><button class="btn btn-primary" onclick="signOutAccount()">Sair da conta</button>`;
+    body.innerHTML = `<p class="account-intro">Sua conta está ativa neste dispositivo.</p><div class="account-message">Conectado como <b>${escapeHTML(currentUser.email)}</b>.</div><button class="btn btn-primary" onclick="signOutAccount()">Sair da conta</button>`;
     return;
   }
-  body.innerHTML = `${message ? `<p style="color:var(--warning)">${escapeHTML(message)}</p>` : ''}
-    <label>E-mail</label><input type="email" id="accountEmail" autocomplete="email">
-    <label>Senha</label><input type="password" id="accountPassword" minlength="8" autocomplete="current-password">
-    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
-      <button class="btn btn-primary" onclick="signInAccount()">Entrar</button>
-      <button class="btn btn-ghost" onclick="signUpAccount()">Criar conta</button>
-      <button class="btn btn-ghost" onclick="resetAccountPassword()">Esqueci a senha</button>
-    </div>`;
+  const isSignup = accountMode === 'signup';
+  const isRecovery = accountMode === 'recovery';
+  const title = isSignup ? 'Crie sua conta' : isRecovery ? 'Recuperar acesso' : 'Entre na sua conta';
+  const intro = isSignup ? 'Salve seus dados e acesse sua conta em qualquer dispositivo.' : isRecovery ? 'Informe seu e-mail e enviaremos um link para criar uma nova senha.' : 'Entre para acompanhar sua conta. Você também pode comprar sem fazer login.';
+  body.innerHTML = `<p class="account-intro"><b>${title}</b><br>${intro}</p>
+    ${message ? `<div class="account-message ${isError?'error':''}" role="alert">${escapeHTML(message)}</div>` : ''}
+    <div class="account-form">
+      <label for="accountEmail">E-mail</label>
+      <input type="email" id="accountEmail" autocomplete="email" placeholder="voce@exemplo.com" required>
+      ${!isRecovery ? `<label for="accountPassword">Senha</label><input type="password" id="accountPassword" minlength="8" autocomplete="${isSignup?'new-password':'current-password'}" placeholder="Mínimo de 8 caracteres" required>${isSignup?'<span class="account-password-hint">Use uma senha que você não utiliza em outros sites.</span>':''}` : ''}
+      ${isSignup ? `<label for="accountConfirmPassword">Confirme a senha</label><input type="password" id="accountConfirmPassword" minlength="8" autocomplete="new-password" placeholder="Digite a senha novamente" required>` : ''}
+      <div class="account-actions">
+        <button class="btn btn-primary" onclick="${isSignup?'signUpAccount()':isRecovery?'resetAccountPassword()':'signInAccount()'}">${isSignup?'Criar conta':isRecovery?'Enviar link':'Entrar'}</button>
+        <button class="btn btn-ghost" onclick="accountMode='${isSignup?'login':'signup'}';renderAccount()">${isSignup?'Já tenho conta':'Criar conta'}</button>
+      </div>
+    </div>
+    ${!isSignup&&!isRecovery ? '<div class="account-switch"><button type="button" onclick="accountMode=\'recovery\';renderAccount()">Esqueci minha senha</button></div>' : ''}
+    ${isRecovery ? '<div class="account-switch"><button type="button" onclick="accountMode=\'login\';renderAccount()">Voltar para entrar</button></div>' : ''}`;
 }
 function accountCredentials(){
-  return {email:document.getElementById('accountEmail')?.value.trim(), password:document.getElementById('accountPassword')?.value || ''};
+  return {
+    email:document.getElementById('accountEmail')?.value.trim().toLowerCase(),
+    password:document.getElementById('accountPassword')?.value || '',
+    confirmPassword:document.getElementById('accountConfirmPassword')?.value || ''
+  };
 }
 async function signInAccount(){
   const {email,password}=accountCredentials();
+  if(!email || !password){ renderAccount('Informe seu e-mail e sua senha.',true); return; }
   const {error}=await supabaseClient.auth.signInWithPassword({email,password});
-  if(error) renderAccount(error.message); else showToast('Login realizado');
+  if(error) renderAccount(authErrorMessage(error),true); else { closeAccount(); showToast('Login realizado'); }
 }
 async function signUpAccount(){
-  const {email,password}=accountCredentials();
-  if(password.length<8){ renderAccount('Use uma senha com pelo menos 8 caracteres.'); return; }
+  const {email,password,confirmPassword}=accountCredentials();
+  if(!email){ renderAccount('Informe um e-mail válido.',true); return; }
+  if(password.length<8){ renderAccount('A senha precisa ter pelo menos 8 caracteres.',true); return; }
+  if(password!==confirmPassword){ renderAccount('As senhas não são iguais.',true); return; }
   const {error}=await supabaseClient.auth.signUp({email,password});
-  if(error) renderAccount(error.message); else renderAccount('Conta criada. Verifique seu e-mail para confirmar o cadastro.');
+  if(error) renderAccount(authErrorMessage(error),true); else renderAccount('Cadastro criado. Confirme seu e-mail para ativar a conta.',false);
 }
 async function resetAccountPassword(){
   const {email}=accountCredentials();
-  if(!email){ renderAccount('Informe seu e-mail para receber o link de recuperação.'); return; }
+  if(!email){ renderAccount('Informe um e-mail válido para receber o link.',true); return; }
   const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:window.location.href});
-  renderAccount(error ? error.message : 'Enviamos um link de recuperação para seu e-mail.');
+  renderAccount(error ? authErrorMessage(error) : 'Link enviado. Verifique seu e-mail e a caixa de spam.', Boolean(error));
 }
 async function signOutAccount(){
   const {error}=await supabaseClient.auth.signOut();
