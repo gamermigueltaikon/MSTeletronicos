@@ -1031,7 +1031,11 @@ function openAdmin(){
   else if(!getAdminHash()){
     document.getElementById('adminBody').innerHTML = `<div class="admin-security"><strong>Painel local deste dispositivo</strong><p>Crie uma senha para evitar acessos acidentais neste navegador.</p><p><b>Segurança:</b> este site estático não oferece autenticação de servidor. As alterações ficam somente neste dispositivo e não devem ser usadas como proteção de dados sensíveis.</p></div><label>Nova senha</label><input type="password" id="adminPass" minlength="8" autocomplete="new-password" placeholder="Mínimo 8 caracteres"><button class="btn btn-primary" onclick="setupAdminPass()">Criar senha</button>`;
   } else {
-    document.getElementById('adminBody').innerHTML = `<label>Senha do painel</label><input type="password" id="adminPass" autocomplete="current-password" placeholder="Digite a senha"><button class="btn btn-primary" onclick="checkAdminPass()">Entrar</button>`;
+    document.getElementById('adminBody').innerHTML = `<div class="admin-security"><strong>Senha do painel</strong><p>Use exatamente o mesmo valor configurado na Vercel em <b>ADMIN_API_KEY</b>.</p></div><label>Senha do painel</label><input type="password" id="adminPass" autocomplete="current-password" placeholder="Digite a senha"><button class="btn btn-primary" onclick="checkAdminPass()">Entrar</button><button class="btn btn-ghost" onclick="resetAdminPass()">Esqueci a senha deste navegador</button>`;
+  }
+  function resetAdminPass(){
+    try{ localStorage.removeItem('loja:'+ADMIN_HASH_KEY); }catch(e){}
+    adminApiKey=''; adminAuthedUntil=0; openAdmin();
   }
   document.getElementById('adminOverlay').classList.add('open');
 }
@@ -1052,13 +1056,13 @@ async function saveRemoteProduct(product, media){
     headers:{'Content-Type':'application/json','X-Admin-Key':adminApiKey},
     body:JSON.stringify({...product, stock:product.stock==='in'?10:0, image_url:media?.images?.[0]||'', media})
   });
-  if(!response.ok){ const result=await response.json().catch(()=>({})); throw new Error(result.error||'Não foi possível salvar o anúncio online'); }
+  if(!response.ok){ const result=await response.json().catch(()=>({})); throw new Error(response.status===401 ? 'Senha rejeitada. Ela precisa ser exatamente igual à variável ADMIN_API_KEY da Vercel.' : result.error||'Não foi possível salvar o anúncio online'); }
 }
 async function deleteRemoteProduct(id){
   const response = await fetch(`${CHECKOUT_API_URL}/api/admin-products?id=${encodeURIComponent(id)}`, {
     method:'DELETE', headers:{'X-Admin-Key':adminApiKey}
   });
-  if(!response.ok){ const result=await response.json().catch(()=>({})); throw new Error(result.error||'Não foi possível excluir o anúncio online'); }
+  if(!response.ok){ const result=await response.json().catch(()=>({})); throw new Error(response.status===401 ? 'Senha rejeitada. Ela precisa ser exatamente igual à variável ADMIN_API_KEY da Vercel.' : result.error||'Não foi possível excluir o anúncio online'); }
 }
 function renderAdmin(){
   const body = document.getElementById('adminBody');
