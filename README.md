@@ -37,12 +37,12 @@ O Google não garante a primeira posição nem indexa um site instantaneamente. 
 
 1. Acesse [Google Search Console](https://search.google.com/search-console) com sua conta Google.
 2. Clique em **Adicionar propriedade** e escolha **Prefixo do URL**.
-3. Informe `https://gamermigueltaikon.github.io/MSTeletronicos/`.
+3. Informe `https://mst-eletronicos.vercel.app/`.
 4. Escolha a verificação por **Tag HTML** ou **Arquivo HTML** e conclua a verificação.
 5. Abra **Sitemaps**, informe `sitemap.xml` e clique em **Enviar**.
 6. Use **Inspeção de URL**, informe a URL do site e clique em **Solicitar indexação**.
 
-Depois, pesquise por `site:gamermigueltaikon.github.io/MSTeletronicos` para acompanhar quando a página aparecer. Para ser encontrado digitando apenas **MST Eletrônicos**, o nome precisa ganhar relevância com tempo, links de redes sociais, divulgação e avaliações reais; não existe botão que garanta essa posição.
+Depois, pesquise por `site:mst-eletronicos.vercel.app` para acompanhar quando a página aparecer. Para ser encontrado digitando apenas **MST Eletrônicos**, o nome precisa ganhar relevância com tempo, links de redes sociais, divulgação e avaliações reais; não existe botão que garanta essa posição.
 
 ## Checkout real com Mercado Pago
 
