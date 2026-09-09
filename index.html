@@ -570,7 +570,12 @@ async function loadPublicProducts(){
     const rows = await response.json();
     if(!Array.isArray(rows)) return [];
     return rows.map(row=>{
-      mediaCache[row.id] = row.media || (row.image_url ? {images:[row.image_url], video:null, videoLink:null} : {});
+      const storedMedia = row.media && typeof row.media === 'object' ? row.media : {};
+      const storedImages = Array.isArray(storedMedia.images) ? storedMedia.images.filter(Boolean) : [];
+      mediaCache[row.id] = {
+        ...storedMedia,
+        images: storedImages.length ? storedImages : (row.image_url ? [row.image_url] : [])
+      };
       return sanitizeProduct({
       ...row,
       stock: Number(row.stock) > 0 ? 'in' : 'out',
