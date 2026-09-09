@@ -18,7 +18,7 @@
 <meta name="twitter:title" content="MST Eletrônicos — Games e acessórios">
 <meta name="twitter:description" content="Games, consoles, celulares e acessórios testados, com atendimento direto pelo WhatsApp.">
 <link rel="canonical" href="https://gamermigueltaikon.github.io/MSTeletronicos/">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; frame-src https://www.youtube.com https://www.youtube-nocookie.com; connect-src 'self' https://*.vercel.app;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; frame-src https://www.youtube.com https://www.youtube-nocookie.com; connect-src 'self' https://*.vercel.app https://*.supabase.co;">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='44' fill='%234dd8ff'/%3E%3Ccircle cx='50' cy='50' r='28' fill='%23121214'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -330,8 +330,16 @@
 <div class="topbar">
   <div class="brand"><span class="dot"></span><span id="storeNameLabel">MST ELETRÔNICOS</span></div>
   <div class="top-actions">
+    <button class="icon-btn" id="accountBtn" onclick="openAccount()">👤 Entrar</button>
     <button class="icon-btn" onclick="openAdmin()">⚙ Admin</button>
     <button class="icon-btn cart-badge" id="cartBtn" onclick="openCart()">🛒 Carrinho <span class="cart-count" id="cartCount">0</span></button>
+  </div>
+
+  <div class="overlay center" id="accountOverlay" role="dialog" aria-modal="true" aria-labelledby="accountTitle">
+    <div class="modal">
+      <div class="panel-head"><h2 id="accountTitle">Conta do cliente</h2><button class="close-x" aria-label="Fechar conta" onclick="closeAccount()">×</button></div>
+      <div class="panel-body" id="accountBody"></div>
+    </div>
   </div>
 </div>
 
@@ -418,6 +426,7 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <a class="floating-wa" id="floatingWa" href="#" target="_blank" rel="noopener noreferrer" aria-label="Falar com a loja no WhatsApp">💬 WhatsApp</a>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* ============ icons (generic, non-branded) ============ */
 function iconConsole(c){ return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2"><rect x="2" y="8" width="20" height="10" rx="4"/><circle cx="7" cy="13" r="1.3" fill="${c}"/><circle cx="17" cy="12" r="0.9" fill="${c}"/><circle cx="19" cy="14" r="0.9" fill="${c}"/></svg>`; }
@@ -467,6 +476,7 @@ function locked(key, ms){ if(locks[key]) return true; locks[key]=true; setTimeou
 const SHARED_STORAGE_ENABLED = false;
 const CHECKOUT_API_URL = 'https://mst-eletronicos.vercel.app';
 const PUBLIC_PRODUCTS_API = `${CHECKOUT_API_URL}/api/products`;
+let supabaseClient = null, currentUser = null;
 const DATA_API_URL = 'https://ep-wandering-pond-aej2amx6.apirest.c-2.us-east-2.aws.neon.tech/neondb/rest/v1';
 async function storageGet(key, shared){
   shared = Boolean(shared && SHARED_STORAGE_ENABLED);
@@ -529,6 +539,7 @@ let editingId = null;
 
 /* ============ init ============ */
 async function init(){
+  await initAuth();
   config = await storageGet('store-config', true);
   if(!config){ config = DEFAULT_CONFIG; await storageSet('store-config', config, true); }
   config = sanitizeConfig(config);
@@ -562,6 +573,75 @@ async function init(){
   updateCartCount();
 }
 init();
+
+async function initAuth(){
+  try{
+    const response = await fetch(`${CHECKOUT_API_URL}/api/public-config`, {cache:'no-store'});
+    if(!response.ok || !window.supabase) return;
+    const config = await response.json();
+    if(!config.url || !config.anonKey) return;
+    supabaseClient = window.supabase.createClient(config.url, config.anonKey);
+    const session = await supabaseClient.auth.getSession();
+    currentUser = session.data.session?.user || null;
+    supabaseClient.auth.onAuthStateChange((_event, nextSession)=>{
+      currentUser = nextSession?.user || null;
+      updateAccountButton();
+    });
+    updateAccountButton();
+  }catch(error){ console.error('Auth initialization error', error); }
+}
+function updateAccountButton(){
+  const button = document.getElementById('accountBtn');
+  if(button) button.textContent = currentUser ? `👤 ${String(currentUser.email).slice(0,22)}` : '👤 Entrar';
+}
+function openAccount(){
+  document.getElementById('accountOverlay').classList.add('open');
+  renderAccount();
+}
+function closeAccount(){ document.getElementById('accountOverlay').classList.remove('open'); }
+function renderAccount(message=''){
+  const body = document.getElementById('accountBody');
+  if(!supabaseClient){
+    body.innerHTML = '<p style="color:var(--muted)">O login ainda está sendo configurado. Tente novamente em alguns instantes.</p>';
+    return;
+  }
+  if(currentUser){
+    body.innerHTML = `<p>Você está conectado como <b>${escapeHTML(currentUser.email)}</b>.</p><button class="btn btn-primary" onclick="signOutAccount()">Sair da conta</button>`;
+    return;
+  }
+  body.innerHTML = `${message ? `<p style="color:var(--warning)">${escapeHTML(message)}</p>` : ''}
+    <label>E-mail</label><input type="email" id="accountEmail" autocomplete="email">
+    <label>Senha</label><input type="password" id="accountPassword" minlength="8" autocomplete="current-password">
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="signInAccount()">Entrar</button>
+      <button class="btn btn-ghost" onclick="signUpAccount()">Criar conta</button>
+      <button class="btn btn-ghost" onclick="resetAccountPassword()">Esqueci a senha</button>
+    </div>`;
+}
+function accountCredentials(){
+  return {email:document.getElementById('accountEmail')?.value.trim(), password:document.getElementById('accountPassword')?.value || ''};
+}
+async function signInAccount(){
+  const {email,password}=accountCredentials();
+  const {error}=await supabaseClient.auth.signInWithPassword({email,password});
+  if(error) renderAccount(error.message); else showToast('Login realizado');
+}
+async function signUpAccount(){
+  const {email,password}=accountCredentials();
+  if(password.length<8){ renderAccount('Use uma senha com pelo menos 8 caracteres.'); return; }
+  const {error}=await supabaseClient.auth.signUp({email,password});
+  if(error) renderAccount(error.message); else renderAccount('Conta criada. Verifique seu e-mail para confirmar o cadastro.');
+}
+async function resetAccountPassword(){
+  const {email}=accountCredentials();
+  if(!email){ renderAccount('Informe seu e-mail para receber o link de recuperação.'); return; }
+  const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:window.location.href});
+  renderAccount(error ? error.message : 'Enviamos um link de recuperação para seu e-mail.');
+}
+async function signOutAccount(){
+  const {error}=await supabaseClient.auth.signOut();
+  if(error) renderAccount(error.message); else { closeAccount(); showToast('Você saiu da conta'); }
+}
 
 async function loadPublicProducts(){
   try{

@@ -80,3 +80,5 @@ alter table public.products add column if not exists condition text not null def
 alter table public.products add column if not exists featured boolean not null default false;
 alter table public.products add column if not exists media jsonb not null default '{}'::jsonb;
 ```
+
+O login de clientes usa o Supabase Auth com e-mail e senha. O cadastro fica armazenado no Supabase e pode ser acessado em outros dispositivos; a compra continua disponível como visitante.
