@@ -1,7 +1,7 @@
 const catalog = {
   p1: { id: 'p1', name: 'Console Retro 16-bit', price: 899.90, stock: 10 },
   p2: { id: 'p2', name: 'Jogo de Corrida - Mídia Física', price: 129.90, stock: 10 },
-  p3: { id: 'p3', name: 'Controle sem fio', price: 219.90, stock: 0 },
+  p3: { id: 'p3', name: 'Controle sem fio', price: 219.90, stock: 10 },
   p4: { id: 'p4', name: 'RPG Clássico - Mídia Física', price: 259.90, stock: 10 }
 };
 
