@@ -26,7 +26,11 @@ module.exports = async function handler(req, res) {
       console.error('Supabase products error', response.status, rows);
       return json(res, 502, { error: 'Não foi possível carregar os anúncios' });
     }
-    return json(res, 200, Array.isArray(rows) ? rows : []);
+    return json(res, 200, Array.isArray(rows) ? rows.map(row => ({
+      ...row,
+      image_url: row.image_url || '',
+      media: row.media || {}
+    })) : []);
   } catch (error) {
     console.error('Public catalog error', error);
     return json(res, 500, { error: 'Não foi possível carregar os anúncios' });
