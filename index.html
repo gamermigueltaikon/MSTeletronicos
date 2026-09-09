@@ -481,13 +481,14 @@
     <button class="icon-btn cart-badge" type="button" id="cartBtn" onclick="openCart()">🛒 Carrinho <span class="cart-count" id="cartCount" aria-live="polite">0</span></button>
   </div>
 
-  <div class="overlay center" id="accountOverlay" role="dialog" aria-modal="true" aria-labelledby="accountTitle">
-      <div class="modal account-modal">
-      <div class="panel-head"><h2 id="accountTitle">Conta do cliente</h2><button class="close-x" type="button" aria-label="Fechar conta" onclick="closeAccount()">×</button></div>
-      <div class="panel-body" id="accountBody"></div>
-    </div>
-  </div>
 </header>
+
+<div class="overlay center" id="accountOverlay" role="dialog" aria-modal="true" aria-labelledby="accountTitle">
+  <div class="modal account-modal">
+    <div class="panel-head"><h2 id="accountTitle">Conta do cliente</h2><button class="close-x" type="button" aria-label="Fechar conta" onclick="closeAccount()">×</button></div>
+    <div class="panel-body" id="accountBody"></div>
+  </div>
+</div>
 
 <main>
 <div class="hero">
