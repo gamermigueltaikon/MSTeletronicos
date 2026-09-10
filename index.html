@@ -429,7 +429,16 @@
     .hero-cta{width:100%;justify-content:center;margin-top:22px;}
     .trust-strip{gap:7px;margin-top:20px;}
     .trust-item{font-size:11px;padding:6px 8px;}
-    .hero-scene{height:270px;margin-top:2px;transform:none;}
+    .hero-scene{display:grid;height:220px;margin:2px 0 6px;transform:none;overflow:hidden;}
+    .hero-scene::before{width:210px;height:210px;opacity:.55;filter:none;}
+    .hero-scene::after{width:190px;height:42px;bottom:10px;filter:blur(8px);opacity:.45;}
+    .scene-ring{width:170px;height:170px;animation:none;opacity:.65;}
+    .scene-ring.r2{width:132px;height:132px;animation:none;opacity:.55;}
+    .scene-card{width:170px;height:112px;animation:none;transform:rotateX(10deg) rotateY(-14deg) rotateZ(-6deg);backdrop-filter:none;box-shadow:0 16px 25px rgba(46,33,110,.2),0 0 18px rgba(47,143,224,.14);}
+    .scene-chip{width:34px;height:34px;font-size:16px;animation:none;}
+    .scene-chip.one{left:calc(50% - 122px);top:55px;}
+    .scene-chip.two{right:calc(50% - 122px);top:30px;}
+    .scene-chip.three{right:calc(50% - 126px);bottom:28px;}
     .stats-strip{gap:10px;margin-bottom:26px;}
     .stat-card{padding:14px 13px;}
     .stat-value{font-size:20px;}
@@ -465,17 +474,24 @@
       transition-duration:0.001ms!important;
       scroll-behavior:auto!important;
     }
-    .hero-scene{display:none;}
     .hero{min-height:0;}
   }
   @media (max-width:430px){
-    .topbar{padding:10px 12px;gap:9px;flex-wrap:wrap;}
-    .brand{width:100%;min-width:0;overflow:hidden;text-overflow:ellipsis;}
+    .topbar{padding:9px 10px;gap:7px;flex-wrap:nowrap;}
+    .brand{width:auto;min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;}
     .top-actions{width:100%;gap:7px;}
-    .top-actions .icon-btn{width:auto;min-width:0;height:40px;padding:0 10px;justify-content:center;font-size:12px;flex:1;}
+    .top-actions{width:auto;flex:0 0 auto;}
+    .top-actions .icon-btn{width:auto;min-width:0;height:38px;padding:0 8px;justify-content:center;font-size:11px;flex:0 0 auto;}
     .top-actions .icon-btn:nth-child(2){display:none;}
     .top-actions .button-label{display:inline;}
     .top-actions .cart-badge .cart-count{font-size:10px;min-width:16px;height:16px;line-height:16px;right:-4px;top:-5px;}
+    .hero-scene{height:195px;}
+    .scene-card{width:150px;height:98px;}
+    .scene-ring{width:150px;height:150px;}
+    .scene-ring.r2{width:116px;height:116px;}
+    .scene-chip.one{left:calc(50% - 108px);}
+    .scene-chip.two{right:calc(50% - 108px);}
+    .scene-chip.three{right:calc(50% - 112px);}
     .card-media{height:210px;background:#f0f2f8;}
     .card-media img{object-fit:contain;padding:10px;}
   }
