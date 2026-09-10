@@ -19,7 +19,7 @@
 <meta name="twitter:title" content="MST Eletrônicos — Games e acessórios">
 <meta name="twitter:description" content="Games, consoles, celulares e acessórios testados, com atendimento direto pelo WhatsApp.">
 <link rel="canonical" href="https://mst-eletronicos.vercel.app/">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; frame-src https://www.youtube.com https://www.youtube-nocookie.com; connect-src 'self' https://*.vercel.app https://*.supabase.co;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://sdk.mercadopago.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://*.mercadopago.com https://*.mercadopago.com.br; connect-src 'self' https://*.vercel.app https://*.supabase.co https://api.mercadopago.com;">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='44' fill='%234dd8ff'/%3E%3Ccircle cx='50' cy='50' r='28' fill='%23121214'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -775,7 +775,9 @@ async function initAuth(){
     if(!response.ok || !window.supabase) return;
     const config = await response.json();
     if(!config.url || !config.anonKey) return;
-    supabaseClient = window.supabase.createClient(config.url, config.anonKey);
+    supabaseClient = window.supabase.createClient(config.url, config.anonKey, {
+      auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
+    });
     const session = await supabaseClient.auth.getSession();
     currentUser = session.data.session?.user || null;
     supabaseClient.auth.onAuthStateChange((_event, nextSession)=>{
@@ -850,7 +852,7 @@ async function signUpAccount(){
   if(!email){ renderAccount('Informe um e-mail válido.',true); return; }
   if(password.length<8){ renderAccount('A senha precisa ter pelo menos 8 caracteres.',true); return; }
   if(password!==confirmPassword){ renderAccount('As senhas não são iguais.',true); return; }
-  const {error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:window.location.origin + window.location.pathname}});
+  const {error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:'https://mst-eletronicos.vercel.app/'}});
   if(error) renderAccount(authErrorMessage(error),true); else renderAccount('Cadastro criado. Enviamos a confirmação para seu e-mail. Verifique spam e promoções.',false);
 }
 async function resendConfirmationEmail(){
@@ -1331,7 +1333,11 @@ function goReview(){ if(locked('review',500)) return; checkoutStep=3; renderChec
 let paymentBrickController = null;
 async function mountPaymentBrick(){
   const container = document.getElementById('paymentBrick_container');
-  if(!container || !window.MercadoPago) return;
+  if(!container) return;
+  if(!window.MercadoPago){
+    container.innerHTML = '<div class="account-message error">O formulário de pagamento não carregou. Atualize a página e tente novamente.</div>';
+    return;
+  }
   if(paymentBrickController){ try{ await paymentBrickController.unmount(); }catch(error){ console.error('Payment brick cleanup error', error); } }
   const name = (document.getElementById('custName').value || '').trim().slice(0,100);
   const email = (document.getElementById('custEmail').value || '').trim().slice(0,120);
