@@ -16,7 +16,10 @@ async function loadCatalog() {
 }
 
 function reply(res, status, body) {
-  res.setHeader('Access-Control-Allow-Origin', process.env.SITE_ORIGIN || 'https://gamermigueltaikon.github.io');
+  const origin = String(res.req?.headers?.origin || '');
+  const allowed = ['https://mst-eletronicos.vercel.app', 'https://gamermigueltaikon.github.io'];
+  res.setHeader('Access-Control-Allow-Origin', allowed.includes(origin) ? origin : allowed[0]);
+  res.setHeader('Vary', 'Origin');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   return res.status(status).setHeader('Cache-Control', 'no-store').json(body);
@@ -49,7 +52,7 @@ module.exports = async function handler(req, res) {
     }
     const freight = estimateFreight(cep);
     const baseAmount = items.reduce((sum, item) => sum + item.unit_price * item.quantity, freight.cost);
-    const amount = paymentMethodId === 'pix' ? baseAmount * 0.95 : baseAmount;
+    const amount = baseAmount;
     const payment = {
       transaction_amount: Number(amount.toFixed(2)),
       description: `Pedido MST Eletrônicos ${crypto.randomUUID().slice(0, 8)}`,
@@ -61,6 +64,12 @@ module.exports = async function handler(req, res) {
     };
     if (token) payment.token = token;
     if (body.issuer_id) payment.issuer_id = String(body.issuer_id);
+    if (body.payer?.identification?.type && body.payer?.identification?.number) {
+      payment.payer.identification = {
+        type: String(body.payer.identification.type),
+        number: String(body.payer.identification.number)
+      };
+    }
     const response = await fetch('https://api.mercadopago.com/v1/payments', {
       method: 'POST',
       headers: { Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`, 'Content-Type': 'application/json', 'X-Idempotency-Key': crypto.randomUUID() },

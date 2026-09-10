@@ -24,7 +24,10 @@ async function loadCatalog() {
 }
 
 function sendJson(res, status, body) {
-  res.setHeader('Access-Control-Allow-Origin', process.env.SITE_ORIGIN || 'https://gamermigueltaikon.github.io');
+  const origin = String(res.req?.headers?.origin || '');
+  const allowed = ['https://mst-eletronicos.vercel.app', 'https://gamermigueltaikon.github.io'];
+  res.setHeader('Access-Control-Allow-Origin', allowed.includes(origin) ? origin : allowed[0]);
+  res.setHeader('Vary', 'Origin');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.status(status).setHeader('Cache-Control', 'no-store').json(body);
