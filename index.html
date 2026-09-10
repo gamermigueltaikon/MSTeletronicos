@@ -469,13 +469,15 @@
     .hero{min-height:0;}
   }
   @media (max-width:430px){
-    .topbar{padding:9px 10px;gap:8px;}
-    .brand{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;}
-    .top-actions{flex:0 0 auto;gap:6px;}
-    .top-actions .icon-btn{width:42px;min-width:42px;height:40px;padding:0;justify-content:center;font-size:17px;}
+    .topbar{padding:10px 12px;gap:9px;flex-wrap:wrap;}
+    .brand{width:100%;min-width:0;overflow:hidden;text-overflow:ellipsis;}
+    .top-actions{width:100%;gap:7px;}
+    .top-actions .icon-btn{width:auto;min-width:0;height:40px;padding:0 10px;justify-content:center;font-size:12px;flex:1;}
     .top-actions .icon-btn:nth-child(2){display:none;}
-    .top-actions .button-label{display:none;}
+    .top-actions .button-label{display:inline;}
     .top-actions .cart-badge .cart-count{font-size:10px;min-width:16px;height:16px;line-height:16px;right:-4px;top:-5px;}
+    .card-media{height:210px;background:#f0f2f8;}
+    .card-media img{object-fit:contain;padding:10px;}
   }
   @media (prefers-contrast:more){
     :root{--line:#b7b9c6;--muted:#4e5060;}
