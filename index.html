@@ -459,6 +459,14 @@
     .benefit,.stat-card,.card{box-shadow:0 5px 16px rgba(30,25,70,.07);}
     .card:hover .card-media img{transform:none;}
     .grid::before{display:none;}
+    *,.card,.hero-cta,.benefit,.icon-btn,.btn,.card-media img{
+      animation-duration:0.001ms!important;
+      animation-iteration-count:1!important;
+      transition-duration:0.001ms!important;
+      scroll-behavior:auto!important;
+    }
+    .hero-scene{display:none;}
+    .hero{min-height:0;}
   }
   @media (max-width:430px){
     .topbar{padding:9px 10px;gap:8px;}
@@ -689,6 +697,7 @@ const DEFAULT_PRODUCTS = [
 
 let config = null, products = [], cart = [], restockRequests = [];
 let mediaCache = {};
+let publicProductsLoaded = false;
 let activeCategory = '', activePlatform = '';
 let adminAuthedUntil = 0;
 let adminApiKey = '';
@@ -718,8 +727,10 @@ async function init(){
   products = await loadPublicProducts();
   if(!products.length) products = (await storageGet('products', true) || []).map(sanitizeProduct).filter(Boolean);
   if(!products || products.length===0){ products = DEFAULT_PRODUCTS; await storageSet('products', products, true); }
-  const mediaResults = await Promise.all(products.map(p=>storageGet('media:'+p.id, true)));
-  products.forEach((p,i)=>{ mediaCache[p.id] = mediaResults[i] || {images:[], video:null, videoLink:null}; });
+  if(!publicProductsLoaded){
+    const mediaResults = await Promise.all(products.map(p=>storageGet('media:'+p.id, true)));
+    products.forEach((p,i)=>{ mediaCache[p.id] = mediaResults[i] || {images:[], video:null, videoLink:null}; });
+  }
 
   cart = sanitizeCart(await storageGet('cart', false) || []);
   restockRequests = (await storageGet('restock-requests', false) || []).map(sanitizeRequest).filter(Boolean);
@@ -834,6 +845,7 @@ async function loadPublicProducts(){
     if(!response.ok) return [];
     const rows = await response.json();
     if(!Array.isArray(rows)) return [];
+    publicProductsLoaded = true;
     return rows.map(row=>{
       const storedMedia = row.media && typeof row.media === 'object' ? row.media : {};
       const storedImages = Array.isArray(storedMedia.images) ? storedMedia.images.filter(Boolean) : [];
