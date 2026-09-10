@@ -335,6 +335,7 @@
   .brand .dot{box-shadow:0 0 0 5px rgba(47,143,224,.1),0 0 18px rgba(232,57,154,.3);}
   .top-actions{gap:8px;}
   .icon-btn{min-height:40px;box-shadow:0 2px 8px rgba(30,25,70,.04);}
+  .button-label{white-space:nowrap;}
   .icon-btn:hover,.icon-btn:focus-visible{box-shadow:0 6px 16px rgba(47,143,224,.14);}
   .hero{max-width:var(--content-width);padding-top:78px;padding-bottom:44px;}
   .hero-copy{max-width:650px;}
@@ -451,13 +452,13 @@
     .gallery-main{height:270px;}
   }
   @media (max-width:430px){
-    .top-actions .icon-btn:first-child{display:flex;}
-    .top-actions .icon-btn:first-child{font-size:0;}
-    .top-actions .icon-btn:first-child:first-letter{font-size:16px;}
+    .topbar{padding:9px 10px;gap:8px;}
+    .brand{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;}
+    .top-actions{flex:0 0 auto;gap:6px;}
+    .top-actions .icon-btn{width:42px;min-width:42px;height:40px;padding:0;justify-content:center;font-size:17px;}
     .top-actions .icon-btn:nth-child(2){display:none;}
-    .top-actions .icon-btn:last-child{font-size:0;}
-    .top-actions .icon-btn:last-child:first-letter{font-size:16px;}
-    .top-actions .icon-btn{padding-inline:10px;}
+    .top-actions .button-label{display:none;}
+    .top-actions .cart-badge .cart-count{font-size:10px;min-width:16px;height:16px;line-height:16px;right:-4px;top:-5px;}
   }
   @media (prefers-contrast:more){
     :root{--line:#b7b9c6;--muted:#4e5060;}
@@ -476,9 +477,9 @@
 <header class="topbar">
   <div class="brand"><span class="dot"></span><span id="storeNameLabel">MST ELETRÔNICOS</span></div>
   <div class="top-actions">
-    <button class="icon-btn" type="button" id="accountBtn" onclick="openAccount()">👤 Entrar</button>
-    <button class="icon-btn" type="button" onclick="openAdmin()">⚙ Admin</button>
-    <button class="icon-btn cart-badge" type="button" id="cartBtn" onclick="openCart()">🛒 Carrinho <span class="cart-count" id="cartCount" aria-live="polite">0</span></button>
+    <button class="icon-btn" type="button" id="accountBtn" aria-label="Abrir conta" onclick="openAccount()">👤 <span class="button-label">Entrar</span></button>
+    <button class="icon-btn" type="button" aria-label="Abrir administração" onclick="openAdmin()">⚙ <span class="button-label">Admin</span></button>
+    <button class="icon-btn cart-badge" type="button" id="cartBtn" aria-label="Abrir carrinho" onclick="openCart()">🛒 <span class="button-label">Carrinho</span> <span class="cart-count" id="cartCount" aria-live="polite">0</span></button>
   </div>
 
 </header>
@@ -741,7 +742,7 @@ async function initAuth(){
 }
 function updateAccountButton(){
   const button = document.getElementById('accountBtn');
-  if(button) button.textContent = currentUser ? `👤 ${String(currentUser.email).slice(0,22)}` : '👤 Entrar';
+  if(button) button.innerHTML = currentUser ? `👤 <span class="button-label">${escapeHTML(String(currentUser.email).slice(0,22))}</span>` : '👤 <span class="button-label">Entrar</span>';
 }
 function openAccount(){
   document.getElementById('accountOverlay').classList.add('open');
