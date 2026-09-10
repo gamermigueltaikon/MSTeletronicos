@@ -192,6 +192,9 @@
   .card-media{ height:152px; display:flex; align-items:center; justify-content:center; font-size:44px; background:var(--surface-2);
     border-bottom:1px solid var(--line); overflow:hidden; position:relative; box-shadow: inset 0 -18px 24px -18px rgba(0,0,0,0.5); }
   .card-media img{ width:100%; height:100%; object-fit:cover; transition:transform .35s; }
+  .card-media img{ content-visibility:auto; background:linear-gradient(135deg,#eef0f7,#e3e6f1); }
+  .image-fallback{display:none;align-items:center;justify-content:center;position:absolute;inset:0;}
+  .image-fallback.image-fallback-visible{display:flex;}
   .card:hover .card-media img{ transform:scale(1.06); }
   .media-count{ position:absolute; bottom:6px; right:6px; background:rgba(0,0,0,0.6); color:#fff; font-size:10px; padding:2px 7px; border-radius:10px; display:flex; align-items:center; gap:4px; }
   .video-tag{ position:absolute; top:6px; left:6px; background:rgba(0,0,0,0.6); color:#fff; font-size:10px; padding:2px 7px; border-radius:10px; }
@@ -450,6 +453,12 @@
     .panel-body{padding:16px;}
     .panel-foot{padding:13px 16px;}
     .gallery-main{height:270px;}
+    .page-orb{display:none;}
+    .hero-scene::before{filter:none;}
+    .scene-card{backdrop-filter:none;}
+    .benefit,.stat-card,.card{box-shadow:0 5px 16px rgba(30,25,70,.07);}
+    .card:hover .card-media img{transform:none;}
+    .grid::before{display:none;}
   }
   @media (max-width:430px){
     .topbar{padding:9px 10px;gap:8px;}
@@ -1005,7 +1014,8 @@ function renderProducts(){
     <article class="card" style="animation-delay:${Math.min(idx*0.06,0.5)}s" onclick="if(!event.target.closest('button,a')) openDetail('${escapeHTML(p.id)}')">
       ${p.featured ? `<span class="ribbon">🔥 Destaque</span>` : ''}
       <div class="card-media">
-        ${cover ? `<img src="${escapeHTML(cover.src)}" alt="${escapeHTML(p.name)}" loading="lazy" decoding="async">` : cat.icon(cat.color).replace('width="14" height="14"','width="40" height="40"')}
+        ${cover ? `<img src="${escapeHTML(cover.src)}" alt="${escapeHTML(p.name)}" loading="${idx<2?'eager':'lazy'}" decoding="async" onerror="this.style.display='none';this.nextElementSibling?.classList.add('image-fallback-visible')">` : cat.icon(cat.color).replace('width="14" height="14"','width="40" height="40"')}
+        ${cover ? `<span class="image-fallback" aria-hidden="true">${cat.icon(cat.color).replace('width="14" height="14"','width="40" height="40"')}</span>` : ''}
         ${(m.video||m.videoLink) ? `<span class="video-tag">▶ vídeo</span>` : ''}
         ${list.length>1 ? `<span class="media-count">${list.length} itens</span>` : ''}
       </div>
@@ -1457,10 +1467,10 @@ function resizeImage(file){
     reader.onload = (e)=>{
       const img = new Image();
       img.onload = ()=>{
-        const maxW=800, scale=Math.min(1,maxW/img.width);
+        const maxW=480, scale=Math.min(1,maxW/img.width);
         const canvas=document.createElement('canvas'); canvas.width=img.width*scale; canvas.height=img.height*scale;
         canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
-        resolve(canvas.toDataURL('image/jpeg',0.72));
+        resolve(canvas.toDataURL('image/jpeg',0.55));
       };
       img.onerror=()=>resolve(null); img.src = e.target.result;
     };
