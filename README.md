@@ -61,7 +61,7 @@ Para ativar:
 const CHECKOUT_API_URL = 'https://mst-checkout.vercel.app';
 ```
 
-7. Publique novamente o site. O botão **Continuar para pagamento** abrirá o Checkout Pro do Mercado Pago com PIX, cartão e boleto disponíveis conforme a conta.
+7. Publique novamente o site. O checkout embutido usa o Mercado Pago Payment Brick para aceitar PIX e cartões dentro da loja, sem exigir que o cliente abra o Mercado Pago ou crie conta. Configure também `MP_PUBLIC_KEY` com a Public Key de produção.
 
 O backend recalcula o preço e o frete com um catálogo server-side em `api/catalog.js`; não confia no valor enviado pelo navegador. Para alterar preços/estoque do checkout, atualize esse catálogo junto com os produtos exibidos.
 

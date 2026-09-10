@@ -192,11 +192,12 @@
     -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events:none; }
   .card-media{ height:152px; display:flex; align-items:center; justify-content:center; font-size:44px; background:var(--surface-2);
     border-bottom:1px solid var(--line); overflow:hidden; position:relative; box-shadow: inset 0 -18px 24px -18px rgba(0,0,0,0.5); }
-  .card-media img{ width:100%; height:100%; object-fit:contain; object-position:center; padding:12px; transition:transform .35s; }
+  .card-media img{ width:100%; height:100%; object-fit:cover; object-position:center; padding:0; transition:transform .35s; }
   .card-media img{ content-visibility:auto; background:linear-gradient(135deg,#eef0f7,#e3e6f1); }
   .image-fallback{display:none;align-items:center;justify-content:center;position:absolute;inset:0;}
   .image-fallback.image-fallback-visible{display:flex;}
   .card:hover .card-media img{ transform:scale(1.03); }
+  .card-media{aspect-ratio:4/3;height:auto;min-height:152px;}
   .media-count{ position:absolute; bottom:6px; right:6px; background:rgba(0,0,0,0.6); color:#fff; font-size:10px; padding:2px 7px; border-radius:10px; display:flex; align-items:center; gap:4px; }
   .video-tag{ position:absolute; top:6px; left:6px; background:rgba(0,0,0,0.6); color:#fff; font-size:10px; padding:2px 7px; border-radius:10px; }
   .card-body{ padding:16px; display:flex; flex-direction:column; gap:8px; flex:1; }
@@ -238,6 +239,7 @@
   .close-x{ background:none; border:none; color:var(--muted); font-size:20px; cursor:pointer; }
   .panel-body{ padding:20px; flex:1; overflow-y:auto; }
   .panel-foot{ padding:16px 20px; border-top:1px solid var(--line); }
+  .payment-brick{margin-top:14px;padding:12px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.72);}
 
   .cart-item{ display:flex; gap:12px; padding:12px 0; border-bottom:1px solid var(--line); }
   .cart-item .thumb{ width:48px; height:48px; background:var(--surface-2); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:20px; overflow:hidden; }
@@ -495,8 +497,8 @@
     .scene-chip.one{left:calc(50% - 108px);}
     .scene-chip.two{right:calc(50% - 108px);}
     .scene-chip.three{right:calc(50% - 112px);}
-    .card-media{height:210px;background:#f0f2f8;}
-    .card-media img{object-fit:contain;padding:10px;}
+    .card-media{height:210px;aspect-ratio:auto;background:#f0f2f8;}
+    .card-media img{object-fit:cover;padding:0;}
   }
   @media (prefers-contrast:more){
     :root{--line:#b7b9c6;--muted:#4e5060;}
@@ -615,6 +617,7 @@
 <a class="floating-wa" id="floatingWa" href="#" target="_blank" rel="noopener noreferrer" aria-label="Falar com a loja no WhatsApp">💬 WhatsApp</a>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://sdk.mercadopago.com/js/v2"></script>
 <script>
 /* ============ icons (generic, non-branded) ============ */
 function iconConsole(c){ return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2"><rect x="2" y="8" width="20" height="10" rx="4"/><circle cx="7" cy="13" r="1.3" fill="${c}"/><circle cx="17" cy="12" r="0.9" fill="${c}"/><circle cx="19" cy="14" r="0.9" fill="${c}"/></svg>`; }
@@ -663,6 +666,7 @@ function locked(key, ms){ if(locks[key]) return true; locks[key]=true; setTimeou
 /* ============ storage helpers ============ */
 const SHARED_STORAGE_ENABLED = false;
 const CHECKOUT_API_URL = 'https://mst-eletronicos.vercel.app';
+const MP_PUBLIC_KEY = 'APP_USR-f781053f-5352-4e75-bf08-7ffbdfcee078';
 const PUBLIC_PRODUCTS_API = `${CHECKOUT_API_URL}/api/products`;
 let supabaseClient = null, currentUser = null, accountMode = 'login';
 const DATA_API_URL = 'https://ep-wandering-pond-aej2amx6.apirest.c-2.us-east-2.aws.neon.tech/neondb/rest/v1';
@@ -1296,15 +1300,17 @@ function renderCheckout(){
     if(payMethod==='debit'){ finalTotal=total; payLabel='Cartão de débito'; }
     if(payMethod==='credit'){ finalTotal=installmentValue(total,installments)*installments; payLabel=`Cartão de crédito em ${installments}x de R$ ${installmentValue(total,installments).toFixed(2).replace('.',',')}`; }
     body.innerHTML = steps + `
-      <label>Nome para contato</label><input type="text" id="custName" placeholder="Seu nome">
+      <label>Nome para contato</label><input type="text" id="custName" placeholder="Seu nome" autocomplete="name">
+      <label>E-mail para receber a confirmação</label><input type="email" id="custEmail" placeholder="voce@exemplo.com" autocomplete="email">
       <label>Resumo</label>
       ${cart.map(i=>`<div class="row-between"><span>${i.qty}x ${i.name}</span><span>R$ ${(i.price*i.qty).toFixed(2).replace('.',',')}</span></div>`).join('')}
       <div class="row-between"><span>Frete</span><span>R$ ${freight.cost.toFixed(2).replace('.',',')}</span></div>
       <div class="row-between"><span>Pagamento</span><span>${payLabel}</span></div>
       <div class="row-between total-row"><span>Total</span><span>R$ ${finalTotal.toFixed(2).replace('.',',')}</span></div>
-      <p style="color:var(--muted); font-size:12px; margin-top:10px;">Ao confirmar, seu pedido é enviado por WhatsApp para a loja, que retorna com o link de pagamento.</p>`;
-    foot.innerHTML = `<button class="btn btn-primary" onclick="submitCheckoutOrder()">Continuar para pagamento</button>
-      <button class="btn btn-ghost" onclick="sendOrder(${finalTotal}, '${escapeHTML(payLabel)}')">Pedir pelo WhatsApp</button>`;
+      <p style="color:var(--muted); font-size:12px; margin-top:10px;">Pague aqui mesmo com PIX ou cartão. Você não precisa criar conta nem sair da loja.</p>
+      <div id="paymentBrick_container" class="payment-brick"></div>`;
+    foot.innerHTML = `<button class="btn btn-ghost" onclick="sendOrder(${finalTotal}, '${escapeHTML(payLabel)}')">Pedir pelo WhatsApp</button>`;
+    setTimeout(mountPaymentBrick, 0);
   }
 }
 function confirmFreight(){
@@ -1316,25 +1322,53 @@ function confirmFreight(){
 }
 function selectPay(method){ payMethod=method; installments=1; renderCheckout(); }
 function goReview(){ if(locked('review',500)) return; checkoutStep=3; renderCheckout(); }
-async function submitCheckoutOrder(){
-  if(locked('checkout-submit',2000)) return;
+let paymentBrickController = null;
+async function mountPaymentBrick(){
+  const container = document.getElementById('paymentBrick_container');
+  if(!container || !window.MercadoPago) return;
+  if(paymentBrickController){ try{ await paymentBrickController.unmount(); }catch(error){ console.error('Payment brick cleanup error', error); } }
   const name = (document.getElementById('custName').value || '').trim().slice(0,100);
-  if(!name){ showToast('Informe seu nome para continuar'); return; }
+  const email = (document.getElementById('custEmail').value || '').trim().slice(0,120);
+  const total = cartSubtotal() + freight.cost;
+  const mp = new MercadoPago(MP_PUBLIC_KEY, {locale:'pt-BR'});
+  const bricks = mp.bricks();
+  paymentBrickController = await bricks.create('payment', 'paymentBrick_container', {
+    initialization: { amount: Number(total.toFixed(2)) },
+    customization: { paymentMethods: { creditCard:'all', debitCard:'all', ticket:'all', bankTransfer:'all' } },
+    callbacks: {
+      onReady: () => {},
+      onSubmit: async (formData) => submitEmbeddedPayment(formData, name, email),
+      onError: (error) => { console.error('Payment brick error', error); showToast('Confira os dados do pagamento'); }
+    }
+  });
+}
+async function submitEmbeddedPayment(formData, name, email){
+  if(locked('checkout-submit',2000)) return;
+  name = (name || document.getElementById('custName').value || '').trim().slice(0,100);
+  email = (email || document.getElementById('custEmail').value || '').trim().slice(0,120);
+  if(!name || !email){ showToast('Informe nome e e-mail para continuar'); return; }
   if(!CHECKOUT_API_URL){ showToast('Pagamento online ainda precisa ser ativado pelo administrador'); return; }
   const payload = {
     customerName:name,
+    email,
     cep:freight.cep,
-    paymentMethod:payMethod,
-    installments:payMethod==='credit' ? installments : 1,
+    token:formData.token,
+    payment_method_id:formData.payment_method_id,
+    issuer_id:formData.issuer_id,
+    installments:formData.installments || 1,
     items:cart.map(item=>({id:item.id, quantity:item.qty}))
   };
   try{
-    const response = await fetch(`${CHECKOUT_API_URL}/api/create-preference`, {
+    const response = await fetch(`${CHECKOUT_API_URL}/api/create-payment`, {
       method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
     });
     const data = await response.json();
-    if(!response.ok || !data.init_point) throw new Error(data.error || 'Não foi possível iniciar o pagamento');
-    window.location.assign(data.init_point);
+    if(!response.ok) throw new Error(data.error || 'Não foi possível processar o pagamento');
+    if(data.status === 'approved'){ showToast('Pagamento aprovado! Obrigado pela compra.'); cart=[]; await storageSet('cart', cart, false); updateCartCount(); closeCheckout(); }
+    else if(data.status === 'pending' && data.point_of_interaction?.transaction_data?.qr_code){
+      const qr = data.point_of_interaction.transaction_data;
+      document.getElementById('paymentBrick_container').innerHTML = `<div class="pay-option selected"><strong>PIX gerado</strong><p style="font-size:12px;margin-top:8px;">Copie o código abaixo no app do seu banco:</p><textarea readonly style="width:100%;min-height:90px;margin-top:8px;">${escapeHTML(qr.qr_code)}</textarea></div>`;
+    } else showToast(`Pagamento ${data.status || 'em análise'}.`);
   }catch(error){ showToast(error.message || 'Não foi possível iniciar o pagamento'); }
 }
 function renderInstallments(total){
