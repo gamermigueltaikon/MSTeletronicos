@@ -3,7 +3,10 @@ module.exports = function handler(req, res) {
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
     return res.status(503).json({ error: 'Login ainda não configurado' });
   }
-  res.setHeader('Access-Control-Allow-Origin', process.env.SITE_ORIGIN || 'https://gamermigueltaikon.github.io');
+  const origin = String(req.headers.origin || '');
+  const allowed = ['https://mst-eletronicos.vercel.app', 'https://gamermigueltaikon.github.io'];
+  res.setHeader('Access-Control-Allow-Origin', allowed.includes(origin) ? origin : allowed[0]);
+  res.setHeader('Vary', 'Origin');
   res.setHeader('Cache-Control', 'public, max-age=300');
   return res.status(200).json({
     url: process.env.SUPABASE_URL,

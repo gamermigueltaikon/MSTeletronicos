@@ -829,7 +829,7 @@ function renderAccount(message='', isError=false){
         <button class="btn btn-primary" onclick="${isSignup?'signUpAccount()':isRecovery?'resetAccountPassword()':'signInAccount()'}">${isSignup?'Criar conta':isRecovery?'Enviar link':'Entrar'}</button>
       </div>
     </div>
-    ${!isSignup&&!isRecovery ? '<div class="account-switch"><button type="button" onclick="accountMode=\'recovery\';renderAccount()">Esqueci minha senha</button></div>' : ''}
+    ${!isSignup&&!isRecovery ? '<div class="account-switch"><button type="button" onclick="accountMode=\'recovery\';renderAccount()">Esqueci minha senha</button><button type="button" onclick="resendConfirmationEmail()">Reenviar confirmação</button></div>' : ''}
     ${isRecovery ? '<div class="account-switch"><button type="button" onclick="accountMode=\'login\';renderAccount()">Voltar para entrar</button></div>' : ''}`;
 }
 function accountCredentials(){
@@ -850,8 +850,14 @@ async function signUpAccount(){
   if(!email){ renderAccount('Informe um e-mail válido.',true); return; }
   if(password.length<8){ renderAccount('A senha precisa ter pelo menos 8 caracteres.',true); return; }
   if(password!==confirmPassword){ renderAccount('As senhas não são iguais.',true); return; }
-  const {error}=await supabaseClient.auth.signUp({email,password});
-  if(error) renderAccount(authErrorMessage(error),true); else renderAccount('Cadastro criado. Confirme seu e-mail para ativar a conta.',false);
+  const {error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:window.location.origin + window.location.pathname}});
+  if(error) renderAccount(authErrorMessage(error),true); else renderAccount('Cadastro criado. Enviamos a confirmação para seu e-mail. Verifique spam e promoções.',false);
+}
+async function resendConfirmationEmail(){
+  const {email}=accountCredentials();
+  if(!email){ renderAccount('Digite seu e-mail para reenviar a confirmação.',true); return; }
+  const {error}=await supabaseClient.auth.resend({type:'signup',email});
+  renderAccount(error ? authErrorMessage(error) : 'Confirmação reenviada. Verifique spam e promoções.', Boolean(error));
 }
 async function resetAccountPassword(){
   const {email}=accountCredentials();
@@ -1355,6 +1361,7 @@ async function submitEmbeddedPayment(formData, name, email){
     token:formData.token,
     payment_method_id:formData.payment_method_id,
     issuer_id:formData.issuer_id,
+    payer:formData.payer,
     installments:formData.installments || 1,
     items:cart.map(item=>({id:item.id, quantity:item.qty}))
   };
